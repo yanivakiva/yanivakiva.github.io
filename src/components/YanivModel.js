@@ -34,7 +34,6 @@ class ThreeJSAnimation extends Component {
         renderer.shadowMap.enabled = true;
         renderer.setSize(0.35 * window.innerWidth, 0.35 * window.innerHeight);
         var container = document.getElementById("yaniv-model");
-        document.title = "Yaniv"
         container.appendChild(renderer.domElement);
 
         // Add a camera

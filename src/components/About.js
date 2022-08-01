@@ -19,39 +19,31 @@ class About extends React.Component {
   render() {
     const one = (
       <p>
-        I am currently studying <b>Computer Science</b> at{" "}
-        <b> University of Toronto </b>, with a focus in Software Systems and
-        Artificial Intelligence. Last year, I was on a one year internship at{" "}
-        <a href="https://www.wattpad.com">Wattpad</a> as a{" "}
-        <b>Software Engineer</b>.
+        I am currently working full-time at {" "} <a href="https://www.dokka.com">DOKKA</a> as a{" "}
+        <b>Software Engineer</b>. and learning <b>Computer Science</b> at{" "}
+        <b> The Open University</b>.
       </p>
     );
     const two = (
       <p>
+        I'm highly motivated, hardworking and curious young professional
+        who strives for development and innovation.
+        Experienced in <b>software development</b>, data analysis, cyber security and networks.
         I'm into any sort of <b>software development</b> that requires
-        creativity. My other areas of interest include <b>machine learning</b>,{" "}
-        <b>human-computer interactions</b> and <b>frontend development</b>. I
-        also like my fair share of visual arts and video editing. In my free
-        time, I eat guava fruit and play video games.
+        problem-solving & being creative. My other areas of interest include <b>machine learning</b>,{" "}
+        <b>human-computer interactions</b> and <b>full-stack development</b>.
+        Among other things, in my free time i like to hike, travel and go nature-seeing.
       </p>
     );
-    const three = (
-      <p>
-        <b>Want to chat?</b> Shoot me a message at{" "}
-        <a href="mailto:yanivakiva20@gmail.com">
-          yanivakiva20@gmail.com
-        </a>{" "}
-        and let's talk.
-      </p>
-    );
+    
     const desc_items = [one, two];
 
     const tech_stack = [
-      "Javascript ES6+",
       "Python",
-      "React.js",
+      "SQL & NoSQL",
+      "ElasticSearch",
       "Java",
-      "Node.js",
+      "React.js",
       "HTML & CSS"
     ];
 
@@ -62,7 +54,7 @@ class About extends React.Component {
       <div id="about">
         <FadeInSection>
           <div className="section-header ">
-            <span className="section-title">/ about me</span>
+            <span className="section-title">/about</span>
           </div>
           <div className="about-content">
             <div className="about-description">

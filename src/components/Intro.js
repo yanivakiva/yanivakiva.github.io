@@ -38,8 +38,8 @@ class Intro extends React.Component {
         <FadeInSection>
           <div className="intro-subtitle">I create stuff sometimes.</div>
           <div className="intro-desc">
-            I'm a software engineer and artist based in Israel. I have profound
-            interest in Backend development, machine learning, human-computer
+            I'm a software engineer, hiker, minimalist. based in Israel.
+            I have profound interest in software development, machine learning, human-computer
             interactions, and everything in between.
           </div>
           <a
