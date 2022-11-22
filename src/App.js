@@ -16,6 +16,15 @@ function App() {
         <Intro></Intro>
         <About></About>
         <Experience></Experience>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+
         <Credits></Credits>
       </div>
       <SidebarNav />

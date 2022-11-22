@@ -28,6 +28,9 @@ class Intro extends React.Component {
         <div id="yaniv-model">
           <YanivModel></YanivModel>
         </div>
+        <div>
+        <br></br>
+        </div>
         <Typist avgTypingDelay={120}>
           <span className="intro-title">
             {"hi, "}
@@ -39,7 +42,7 @@ class Intro extends React.Component {
           <div className="intro-subtitle">I create stuff sometimes.</div>
           <div className="intro-desc">
             I'm a software engineer, hiker, minimalist. based in Israel.
-            I have profound interest in software development, machine learning, human-computer
+            I have profound interest in software development, cyber-security, machine learning, human-computer
             interactions, and everything in between.
           </div>
           <a

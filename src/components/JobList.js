@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     backgroundColor: "theme.palette.background.paper",
     display: "flex",
-    height: 300
+    height: 95
   },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`
@@ -84,20 +84,25 @@ const JobList = () => {
   const experienceItems = {
     DOKKA: {
       jobTitle: "Software Engineer @",
-      duration: "NOV 2020 - PRESENT",
+      duration: "NOV 2020 - SEP 2022",
       desc: [
-        "bullet 1",
-        "bullet 2",
-        "bullet 3",
-        "bullet 4"
+        "Developed a document understanding framework that performs key phrase detection, 
+        table and figure extraction, asynchronous batch-documents scanning, 
+        and document matching",
+        "Integrated our system to SAP's ERP's system resulting in increased exposure to potential clients",
+        "Developed an Asynchronous Publisher-Consumer framework using RabbitMQ, increasing system efficiency by ~30%",
+        "Developed backend modules, REST API’s, and middlewares using Python, Flask, and SQLAlchemy"
       ]
     },
     IDF: {
       jobTitle: "Software Engineer @",
       duration: "FEB 2018 - NOV 2020",
       desc: [
-        "bullet 1",
-        "bullet 2"
+        "Developed and implemented CI/CD pipelines using Azure DevOps to automatically build and deploy python applications to Kubernetes clusters",
+        "Developed backend modules using Python and SQLAlchemy",
+        "Developed and designed REST APIs microservices using python Flask framework",
+        "Developed applications, algorithms, and modules using python to obtain intelligence data and technological
+        insights from relational and non-relational databases"
       ]
     }
   };
