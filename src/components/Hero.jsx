@@ -15,17 +15,13 @@ export default function Hero() {
 
   return (
     <section id="home" ref={ref} className={styles.hero}>
-      {/* 3D hands scene */}
+      {/* Blackhole shader background */}
       <motion.div className={styles.canvas} style={{ opacity: sceneOpacity }}>
         <Suspense fallback={<div className={styles.fallback} />}>
           <HeroScene />
         </Suspense>
       </motion.div>
 
-      {/* Gradient overlays for text readability */}
-      <div className={styles.gradientBottom} />
-
-      {/* Text overlay at bottom */}
       <div className={styles.content}>
         <motion.p
           className={styles.greeting}

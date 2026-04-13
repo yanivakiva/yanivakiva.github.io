@@ -1,21 +1,21 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
-import HandsScene from './HandsScene';
+import BlackholeScene from './BlackholeScene';
 
 export default function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [0, 0.15, 2.2], fov: 45 }}
       dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, toneMapping: 3 }}
+      gl={{ antialias: false }}
       style={{
         position: 'absolute',
         inset: 0,
         pointerEvents: 'auto',
       }}
+      camera={{ position: [0, 0, 1] }}
     >
       <Suspense fallback={null}>
-        <HandsScene />
+        <BlackholeScene />
       </Suspense>
     </Canvas>
   );
