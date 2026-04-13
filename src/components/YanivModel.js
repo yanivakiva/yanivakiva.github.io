@@ -20,7 +20,7 @@ class ThreeJSAnimation extends Component {
 
       function init() {
         const MODEL_PATH =
-          "https://textractexample-textractcognitodemobucket90cf6a3d-1325eomlv7h2u.s3.eu-west-1.amazonaws.com/last_groot.glb";
+          "https://s3.eu-central-1.amazonaws.com/yanivakiva.groot/last_groot.glb";
         const backgroundColor = 0x16161a;
         // Init the scene
         scene = new THREE.Scene();
@@ -53,7 +53,7 @@ class ThreeJSAnimation extends Component {
         // });
 
 
-        let stacy_txt = new THREE.TextureLoader().load('https://textractexample-textractcognitodemobucket90cf6a3d-1325eomlv7h2u.s3.eu-west-1.amazonaws.com/groot_BaseColor.tga.png');
+        let stacy_txt = new THREE.TextureLoader().load('https://s3.eu-central-1.amazonaws.com/yanivakiva.groot/groot_BaseColor.tga.png');
 
         stacy_txt.flipY = false; // we flip the texture so that its the right way up
 

@@ -22,8 +22,6 @@ function App() {
         <br></br>
         <br></br>
         <br></br>
-        <br></br>
-        <br></br>
 
         <Credits></Credits>
       </div>

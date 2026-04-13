@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     backgroundColor: "theme.palette.background.paper",
     display: "flex",
-    height: 95
+    height: 250
   },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`
@@ -82,15 +82,24 @@ const JobList = () => {
   const [value, setValue] = React.useState(0);
 
   const experienceItems = {
+    SYGNIA: {
+      jobTitle: "Software Engineer @",
+      duration: "DEC 2022 - PRESENT",
+      desc: [
+        "Manage and optimize high-scale infrastructure handling over 1 petabyte of data ingestion monthly",
+        "Develop and maintain scalable, high-availability backend microservices with Flask and SQLAlchemy",
+        "Implement CI/CD pipelines using Azure DevOps and ArgoCD to automate the deployment of applications in Kubernetes environments",
+        "Design and Develop applications using Docker, Kubernetes, and Nginx for efficient resource utilization",
+        "Build reliable messaging and data streaming solutions using AWS SQS and Logstash for seamless data processing workflows"
+      ]
+    },
     DOKKA: {
       jobTitle: "Software Engineer @",
-      duration: "NOV 2020 - SEP 2022",
+      duration: "NOV 2020 - OCT 2022",
       desc: [
-        "Developed a document understanding framework that performs key phrase detection, 
-        table and figure extraction, asynchronous batch-documents scanning, 
-        and document matching",
+        "Developed a document understanding framework that performs key phrase detection, table and figure extraction, asynchronous batch-documents scanning, and document matching",
         "Integrated our system to SAP's ERP's system resulting in increased exposure to potential clients",
-        "Developed an Asynchronous Publisher-Consumer framework using RabbitMQ, increasing system efficiency by ~30%",
+        "Developed an Asynchronous Publisher-Consumer framework using RabbitMQ, increasing system efficiency by ~~- 30%",
         "Developed backend modules, REST API’s, and middlewares using Python, Flask, and SQLAlchemy"
       ]
     },
@@ -101,8 +110,7 @@ const JobList = () => {
         "Developed and implemented CI/CD pipelines using Azure DevOps to automatically build and deploy python applications to Kubernetes clusters",
         "Developed backend modules using Python and SQLAlchemy",
         "Developed and designed REST APIs microservices using python Flask framework",
-        "Developed applications, algorithms, and modules using python to obtain intelligence data and technological
-        insights from relational and non-relational databases"
+        "Developed applications, algorithms, and modules using python to obtain intelligence data and technological insights from relational and non-relational databases"
       ]
     }
   };
@@ -121,7 +129,7 @@ const JobList = () => {
         className={classes.tabs}
       >
         {Object.keys(experienceItems).map((key, i) => (
-          <Tab label={isHorizontal ? `0${i}.` : key} {...a11yProps(i)} />
+          <Tab label={isHorizontal ? `${key}` : key} {...a11yProps(i)} />
         ))}
       </Tabs>
       {Object.keys(experienceItems).map((key, i) => (

@@ -19,7 +19,7 @@ class About extends React.Component {
   render() {
     const one = (
       <p>
-        I am currently working full-time at {" "} <a href="https://www.dokka.com">DOKKA</a> as a{" "}
+        I am currently working full-time at {" "} <a href="https://www.sygnia.co/">Sygnia</a> as a{" "}
         <b>Software Engineer</b>. and learning <b>Computer Science</b> at{" "}
         <b> The Open University</b>.
       </p>
@@ -28,11 +28,11 @@ class About extends React.Component {
       <p>
         I'm highly motivated, hardworking and curious young professional
         who strives for development and innovation.
-        Experienced in <b>software development</b>, data analysis, cyber security and networks.
+        Experienced in <b>software development</b>, cyber security and networks.
         I'm into any sort of <b>software development</b> that requires
         problem-solving & being creative. My other areas of interest include <b>machine learning</b>,{" "}
         <b>human-computer interactions</b> and <b>full-stack development</b>.
-        Among other things, in my free time i like to hike, travel and go nature-seeing.
+        Among other things, in my free time i like to cook, travel and go nature-seeing.
       </p>
     );
     
@@ -42,7 +42,7 @@ class About extends React.Component {
       "Python",
       "SQL & NoSQL",
       "ElasticSearch",
-      "Java",
+      "Rust",
       "React.js",
       "HTML & CSS"
     ];
