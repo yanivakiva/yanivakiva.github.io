@@ -1,0 +1,131 @@
+.sectionTitle {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: var(--space-12);
+}
+
+.container {
+  display: flex;
+  gap: var(--space-8);
+  min-height: 350px;
+}
+
+.tabs {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-left: 2px solid var(--bg-elevated);
+}
+
+.tab {
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: var(--space-3) var(--space-6);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+  height: 48px;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--accent-cyan);
+  background: var(--accent-cyan-muted);
+}
+
+.tabActive {
+  color: var(--accent-cyan);
+}
+
+.indicator {
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 2px;
+  height: 48px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 206, 209, 0.5);
+}
+
+.panel {
+  flex: 1;
+  padding-top: var(--space-2);
+}
+
+.jobTitle {
+  font-family: var(--font-sans);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.jobTitle a {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.companyName {
+  color: var(--accent-cyan);
+}
+
+.duration {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.descList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.descItem {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.bullet {
+  color: var(--accent-cyan);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .tabs {
+    flex-direction: row;
+    border-left: none;
+    border-bottom: 2px solid var(--bg-elevated);
+    overflow-x: auto;
+  }
+
+  .tab {
+    height: auto;
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .indicator {
+    display: none;
+  }
+
+  .tabActive {
+    border-bottom: 2px solid var(--accent-cyan);
+    margin-bottom: -2px;
+  }
+}

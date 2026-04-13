@@ -1,0 +1,78 @@
+.contact {
+  padding: var(--space-24) var(--section-padding-x);
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  text-align: center;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-6);
+  justify-content: center;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  padding: var(--space-3) var(--space-8);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 6px;
+  color: var(--accent-cyan) !important;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-cyan);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.cta:hover {
+  color: var(--bg-primary) !important;
+  box-shadow: 0 0 25px rgba(0, 206, 209, 0.3);
+}
+
+.cta:hover::before {
+  opacity: 1;
+}
+
+.socials {
+  display: flex;
+  gap: var(--space-6);
+  margin-top: var(--space-12);
+}
+
+.socialLink {
+  color: var(--text-secondary) !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.socialLink:hover {
+  color: var(--accent-cyan) !important;
+  transform: translateY(-3px);
+}
