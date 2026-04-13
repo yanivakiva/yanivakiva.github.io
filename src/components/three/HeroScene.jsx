@@ -1,25 +1,21 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
-import ParticleField from './ParticleField';
+import HandsScene from './HandsScene';
 
-export default function HeroScene({ scrollProgress = 0 }) {
+export default function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [0, 0, 6], fov: 55 }}
-      dpr={[1, 1.5]}
-      gl={{ antialias: true, alpha: true }}
+      camera={{ position: [0, 0.15, 2.2], fov: 45 }}
+      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true, toneMapping: 3 }}
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
+        inset: 0,
         pointerEvents: 'auto',
       }}
     >
       <Suspense fallback={null}>
-        <ambientLight intensity={0.5} />
-        <ParticleField scrollProgress={scrollProgress} />
+        <HandsScene />
       </Suspense>
     </Canvas>
   );
