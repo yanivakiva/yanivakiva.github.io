@@ -1,18 +1,12 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import gardenExportPlugin from "./scripts/garden-export-plugin";
 
 export default defineConfig({
-  plugins: [react()],
-  base: '/',
+  plugins: [react(), gardenExportPlugin()],
+  base: "/",
   build: {
-    outDir: 'dist',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
-        },
-      },
-    },
+    outDir: "dist",
   },
   server: {
     port: 3000,

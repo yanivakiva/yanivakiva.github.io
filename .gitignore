@@ -22,3 +22,11 @@ yarn-error.log*
 
 # IDE
 .idea/
+
+# Local artwork-preparation intermediates (production WebP assets are tracked)
+/output/garden-art/
+/output/recordings/
+/output/garden-film/
+
+# Local design previews and production notes are not public repository content.
+/output/visualizations/

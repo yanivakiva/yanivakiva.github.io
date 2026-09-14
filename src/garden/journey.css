@@ -1,0 +1,762 @@
+/* The shared garden stage stays behind the introduction and career chapters. */
+.garden-header {
+  background: var(--paper);
+}
+.garden-header[data-scrolled="true"] {
+  background: var(--paper);
+}
+.garden-header nav {
+  gap: clamp(18px, 2.4vw, 34px);
+}
+.garden-header nav > a,
+.cv-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.garden-header .motion-toggle {
+  border-left: 1px solid var(--rule);
+  padding: 8px 0 8px 20px;
+  min-height: 44px;
+}
+.cv-label-small {
+  display: none;
+}
+.garden-journey {
+  position: relative;
+  isolation: isolate;
+  overflow-anchor: none;
+}
+.garden-journey[data-static="true"] .journey-intro {
+  height: auto;
+}
+.garden-journey[data-static="true"] .journey-passage {
+  display: none;
+}
+.journey-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  margin-bottom: -100svh;
+  overflow: hidden;
+  background: var(--paper);
+  pointer-events: none;
+}
+.scene-plane,
+.scene-mist {
+  position: absolute;
+  inset: 0;
+}
+.scene-plane {
+  transform-origin: 67% 46%;
+}
+.scene-plane img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.scene-arrival img {
+  object-position: 60% center;
+}
+.scene-bridge {
+  opacity: 0;
+}
+.scene-workshop {
+  opacity: 0;
+}
+.scene-workshop img {
+  object-position: 66% center;
+}
+.chapter-backdrop {
+  opacity: 0;
+  transition: opacity 650ms ease;
+}
+.chapter-backdrop[data-active="true"] {
+  opacity: 1;
+}
+.chapter-backdrop img {
+  object-position: 65% center;
+}
+.scene-mist {
+  background: var(--paper-light);
+}
+.scene-caption {
+  position: absolute;
+  right: 4.2%;
+  top: 112px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--ink);
+  background: var(--paper);
+  padding: 12px 16px;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.scene-caption[data-visible="true"] {
+  opacity: 1;
+}
+.scene-caption-rule {
+  width: 24px;
+  height: 1px;
+  background: var(--red);
+}
+.scene-caption > span:nth-child(2) {
+  font-family: var(--serif);
+  font-size: 18px;
+}
+.scene-caption-note {
+  display: none;
+}
+.journey-intro {
+  height: 240svh;
+  position: relative;
+}
+.journey-hero {
+  position: relative;
+  height: 100svh;
+  min-height: 640px;
+}
+.arrival-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(246 242 232 / 70%),
+    rgb(246 242 232 / 25%) 32%,
+    transparent 53%
+  );
+  mask-image: linear-gradient(black 75%, transparent);
+}
+.journey-copy {
+  position: relative;
+  width: 47%;
+  margin-left: 4.8%;
+  padding-top: clamp(112px, 14.5svh, 165px);
+}
+.journey-copy > .eyebrow {
+  margin: 0 0 25px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.journey-copy h1 {
+  font-family: var(--serif);
+  font-size: clamp(96px, min(13.1vw, 18.8svh), 195px);
+  line-height: 0.84;
+  font-weight: 300;
+  letter-spacing: -0.075em;
+  margin: 0 0 27px -7px;
+}
+.journey-copy h1 > span {
+  color: var(--red);
+}
+.journey-role {
+  font-family: var(--serif);
+  font-size: clamp(25px, 2.65vw, 39px);
+  line-height: 1.13;
+  margin: 0 0 20px;
+}
+.journey-role em {
+  color: #53634c;
+  font-weight: 300;
+}
+.journey-description {
+  color: var(--body-ink);
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.journey-copy .garden-button {
+  font-size: 19px;
+  padding: 12px 22px;
+}
+.journey-bottom {
+  position: absolute;
+  bottom: 30px;
+  left: 4.8%;
+  right: 4.2%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.journey-location {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  background: var(--paper);
+  padding: 12px 14px;
+}
+.journey-location > span {
+  width: 18px;
+  height: 1px;
+  background: var(--red);
+}
+.journey-bottom .follow-path {
+  background: var(--paper);
+  padding: 12px 18px;
+  gap: 20px;
+  font-size: 17px;
+}
+.journey-passage {
+  height: 140svh;
+  pointer-events: none;
+}
+.journey-passage p {
+  display: none;
+}
+.mobile-arrival,
+.mobile-career-scene {
+  display: none;
+}
+
+.experience-section {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54% 46%;
+  padding: 0;
+}
+.experience-reading {
+  background: var(--paper);
+  padding: 88px 5vw 75px 4.8vw;
+  min-width: 0;
+}
+.experience-eyebrow {
+  margin: 0 0 23px;
+  color: var(--quiet);
+  font-size: 11px;
+}
+.experience-section .section-intro {
+  display: block;
+  margin: 0 0 35px;
+}
+.experience-section h2 {
+  font-size: clamp(52px, 5.6vw, 88px);
+}
+.experience-section h2 em {
+  color: var(--red);
+}
+.experience-section .section-intro > p {
+  max-width: 38ch;
+  margin: 24px 0 0;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.experience-section .career-stop {
+  display: block;
+  padding: 43px 0 52px 28px;
+  scroll-margin-top: 25px;
+}
+.experience-section .career-track {
+  width: 1px;
+}
+.experience-section .career-track > span {
+  width: 1px;
+}
+.experience-section .career-node {
+  top: 53px;
+  background: var(--paper);
+  border: 1px solid #839077;
+  transition:
+    background 200ms,
+    box-shadow 200ms;
+}
+.experience-section .career-stop[data-active="true"] .career-node {
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow:
+    0 0 0 5px var(--paper),
+    0 0 0 6px #c9ad97;
+}
+.experience-section .career-company h3 {
+  font-size: clamp(34px, 3.65vw, 52px);
+  margin-bottom: 12px;
+}
+.experience-section .career-story {
+  margin-top: 29px;
+}
+.experience-section .career-story h4 {
+  font-size: 25px;
+  margin-bottom: 17px;
+}
+.experience-section .role-description {
+  font-size: 16px;
+}
+.experience-section .role-points {
+  font-size: 16px;
+  line-height: 1.8;
+}
+.experience-section .role-skills {
+  font-size: 12px;
+  gap: 10px 17px;
+  letter-spacing: 0.025em;
+}
+.role-details summary {
+  max-width: 230px;
+  min-height: 44px;
+}
+.chapter-navigation {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  position: sticky;
+  top: calc(100svh - 195px);
+  margin: 0 4.2vw 36px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 14px 22px;
+  background: var(--paper);
+}
+.chapter-navigation a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  color: var(--body-ink);
+  font-size: 13px;
+}
+.chapter-dot {
+  height: 5px;
+  width: 5px;
+  border: 1px solid var(--quiet);
+  border-radius: 50%;
+}
+.chapter-navigation a[aria-current="step"] {
+  color: var(--red);
+}
+.chapter-navigation a[aria-current="step"] .chapter-dot {
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 4px #d9bca5;
+}
+.about-section,
+.contact-section {
+  position: relative;
+  background: var(--paper);
+}
+.about-section {
+  padding-top: 85px;
+}
+.about-portrait::before {
+  z-index: 0;
+}
+.about-portrait > img,
+.portrait-caption {
+  position: relative;
+}
+.about-links a {
+  min-height: 44px;
+}
+.contact-companion {
+  position: relative;
+  text-align: center;
+}
+.contact-fox-button {
+  width: 215px;
+  max-width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: block;
+  margin: 0 auto;
+  border-radius: 50%;
+}
+.contact-fox-button:hover {
+  filter: brightness(1.06);
+}
+.contact-fox {
+  width: 100%;
+  height: auto;
+  transform: none;
+  margin: 0;
+}
+.companion-invitation {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-style: italic;
+  color: var(--quiet);
+  margin: 5px 0 0;
+}
+.companion-reply {
+  height: 24px;
+  font-size: 13px;
+  color: var(--red);
+  margin: 10px -20px 0;
+}
+.contact-layout {
+  margin-bottom: 20px;
+}
+.garden-footer > a {
+  min-height: 44px;
+}
+[data-motion="off"] *,
+[data-motion="off"] *::before,
+[data-motion="off"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (min-width: 1800px) {
+  .journey-copy {
+    margin-left: 6%;
+  }
+  .experience-reading {
+    padding-inline: 6vw;
+  }
+}
+@media (min-width: 761px) and (max-height: 740px) {
+  .journey-copy {
+    padding-top: 102px;
+  }
+  .journey-copy > .eyebrow {
+    margin-bottom: 18px;
+  }
+  .journey-copy h1 {
+    font-size: min(12.5vw, 17.5svh);
+    margin-bottom: 20px;
+  }
+  .journey-role {
+    font-size: 29px;
+    margin-bottom: 15px;
+  }
+  .journey-description {
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+  .journey-bottom {
+    bottom: 22px;
+  }
+}
+@media (max-width: 1050px) and (min-width: 761px) {
+  .journey-copy {
+    width: 49%;
+  }
+  .journey-copy h1 {
+    font-size: min(14vw, 19svh);
+  }
+  .journey-role {
+    font-size: 30px;
+  }
+  .experience-section {
+    grid-template-columns: 58% 42%;
+  }
+  .experience-reading {
+    padding-inline: 4vw;
+  }
+  .scene-caption {
+    max-width: 32%;
+  }
+  .garden-header nav {
+    gap: 20px;
+  }
+  .garden-header nav > a,
+  .cv-button {
+    font-size: 17px;
+  }
+}
+@media (max-width: 760px) {
+  .garden-header,
+  .garden-header[data-scrolled="true"] {
+    padding: 12px 20px;
+    background: var(--paper);
+  }
+  .garden-header nav {
+    gap: 14px;
+  }
+  .garden-header nav > a,
+  .cv-button {
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+  .garden-header .motion-toggle {
+    border: 0;
+    padding: 8px;
+    gap: 0;
+    min-width: 44px;
+  }
+  .garden-header .motion-toggle svg {
+    width: 18px;
+  }
+  .garden-header .motion-toggle span {
+    display: none;
+  }
+  .garden-header .motion-toggle[aria-pressed="false"] {
+    opacity: 0.65;
+  }
+  .cv-button {
+    padding: 0;
+    gap: 3px;
+  }
+  .cv-button svg {
+    width: 12px;
+  }
+  .cv-label-wide {
+    display: none;
+  }
+  .cv-label-small {
+    display: inline;
+  }
+  .wordmark {
+    font-size: 23px;
+  }
+  .wordmark span {
+    margin-left: 3px;
+  }
+  .journey-stage {
+    display: none;
+  }
+  .journey-intro {
+    height: auto;
+  }
+  .journey-hero {
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+    padding-bottom: 62px;
+    display: flex;
+    flex-direction: column;
+  }
+  .journey-passage {
+    display: none;
+  }
+  .journey-copy {
+    padding-top: 111px;
+    margin-left: 24px;
+    width: calc(100% - 48px);
+  }
+  .journey-copy > .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    margin-bottom: 21px;
+  }
+  .journey-copy h1 {
+    font-size: clamp(96px, 23vw, 142px);
+    margin-left: -5px;
+    margin-bottom: 24px;
+  }
+  .journey-role {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+  .journey-description {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 21px;
+  }
+  .journey-copy .garden-button {
+    font-size: 18px;
+    padding: 11px 18px;
+  }
+  .mobile-arrival {
+    display: block;
+    position: relative;
+    order: 2;
+    width: 100%;
+    height: clamp(300px, 70vw, 430px);
+    margin-top: 12px;
+    mask-image: linear-gradient(transparent, black 16%, black 89%, transparent);
+  }
+  .mobile-arrival img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 72% center;
+  }
+  .arrival-wash {
+    display: none;
+  }
+  .journey-bottom {
+    left: 24px;
+    right: 24px;
+    bottom: 18px;
+  }
+  .journey-location {
+    display: none;
+  }
+  .journey-bottom .follow-path {
+    font-size: 16px;
+    padding: 10px 0;
+    background: transparent;
+  }
+  .experience-section {
+    display: block;
+  }
+  .experience-reading {
+    padding: 38px 24px 35px;
+  }
+  .experience-eyebrow {
+    margin-bottom: 20px;
+  }
+  .experience-section h2 {
+    font-size: 58px;
+  }
+  .experience-section .section-intro {
+    margin-bottom: 8px;
+  }
+  .experience-section .section-intro > p {
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  .experience-section .career-stop {
+    padding: 34px 0 38px;
+  }
+  .career-track,
+  .career-node {
+    display: none;
+  }
+  .mobile-career-scene {
+    display: block;
+    margin: 28px -24px 26px;
+    height: 250px;
+    overflow: hidden;
+  }
+  .mobile-career-scene img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: 68% center;
+  }
+  .mobile-career-scene[data-scene="workshop"] img {
+    object-position: 90% center;
+  }
+  .mobile-career-scene[data-scene="bridge"] img {
+    object-position: 54% center;
+  }
+  .experience-section .career-company h3 {
+    font-size: 39px;
+  }
+  .experience-section .career-story {
+    margin-top: 25px;
+  }
+  .experience-section .role-skills {
+    font-size: 13px;
+  }
+  .chapter-navigation {
+    display: none;
+  }
+  .about-section {
+    padding-top: 25px;
+  }
+  .contact-layout {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .contact-companion {
+    justify-self: end;
+    margin-top: 5px;
+  }
+  .contact-fox-button {
+    width: 155px;
+  }
+  .companion-invitation {
+    font-size: 14px;
+  }
+  .companion-reply {
+    margin-inline: 0;
+  }
+}
+@media (max-width: 380px) {
+  .garden-header,
+  .garden-header[data-scrolled="true"] {
+    padding-inline: 15px;
+  }
+  .garden-header nav {
+    gap: 10px;
+  }
+  .garden-header .motion-toggle {
+    font-size: 10px;
+  }
+  .journey-copy {
+    margin-left: 22px;
+  }
+  .journey-role {
+    font-size: 26px;
+  }
+  .contact-email {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-plane {
+    transform: none !important;
+  }
+}
+@media print {
+  .journey-stage,
+  .journey-intro,
+  .mobile-career-scene,
+  .chapter-navigation,
+  .contact-companion,
+  .experience-eyebrow {
+    display: none !important;
+  }
+  .garden-journey {
+    isolation: auto;
+  }
+  .experience-section {
+    display: block;
+  }
+  .experience-reading {
+    padding: 0;
+    background: #fff;
+  }
+  .experience-section .career-stop {
+    display: grid;
+    grid-template-columns: 0.7fr 1.3fr;
+    gap: 18pt;
+    padding: 16pt 0;
+  }
+  .experience-section .career-company h3 {
+    font-size: 20pt;
+  }
+  .experience-section .career-story {
+    margin: 0;
+  }
+  .experience-section .career-story h4 {
+    font-size: 13pt;
+    margin-bottom: 7pt;
+  }
+  .experience-section .role-description,
+  .experience-section .role-points,
+  .experience-section .role-skills {
+    font-size: 9pt;
+    line-height: 1.45;
+  }
+  .role-points li {
+    margin-bottom: 5pt;
+  }
+  .role-details {
+    display: block;
+    margin-top: 5pt;
+  }
+  .role-details summary {
+    display: none;
+  }
+  .about-section,
+  .contact-section {
+    background: #fff;
+    padding-top: 0;
+    break-inside: avoid;
+  }
+  .about-copy h2,
+  .contact-layout h2 {
+    break-after: avoid;
+    letter-spacing: normal;
+  }
+  .about-layout {
+    display: block;
+  }
+  .about-copy h2 br,
+  .contact-layout h2 br {
+    display: none;
+  }
+  .contact-layout {
+    margin-bottom: 0;
+  }
+}

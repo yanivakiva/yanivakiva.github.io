@@ -1,47 +1,24 @@
-<p align="center">
-  <img src="https://img.icons8.com/color/48/000000/magritte.png"/>
-</p>
-<h1 align="center">
-  yanivakiva.com - v1
-</h1>
-<p align="center">
-  The first iteration of <a href="https://yanivakiva.com" target="_blank">yanivakiva.com</a> built with React.js leveraging Material UI.
-</p>
+# yanivakiva.com
 
-<img width="1306" alt="Screen Shot 2021-03-15 at 8 29 18 PM" src="https://user-images.githubusercontent.com/32211479/111238274-24f8b100-85cd-11eb-9d5a-00f07cbc05e9.png">
+Floating-garden portfolio built with React, Vite, and a scroll-driven image sequence. The garden leads into a dark, terminal-inspired experience section. Motion can be disabled and follows the system reduced-motion preference.
 
-## 🛠 set-up
+## Development
 
-1. Install the dependencies
+Run `npm ci`, then `npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`.
 
-   ```sh
-   npm install or yarn
-   ```
+Use http://127.0.0.1:5173/ for the local preview. Run `npm test` and `npm run build` to validate. Static output is generated in `dist/`.
 
-2. Start the development server
+## GitHub Pages
 
-   ```sh
-   yarn run start
-   ```
+Pushes to `floating-garden` run `.github/workflows/deploy.yml`: install locked dependencies, test, build, and publish only `dist/` to GitHub Pages. The Pages publishing source is GitHub Actions; `public/CNAME` preserves `yanivakiva.com` and its existing HTTPS configuration. The old `master` branch is retained unchanged as a rollback reference.
 
-## 🚀 build and run for production
+Production artwork is checked in under `public/garden/`; it requires no paid services, generation tools, or local intermediate files to build.
 
-1. Generate a full static production build
+## Public content and branding
 
-   ```sh
-   npm run build
-   ```
-
-
-## 🎨 color codes
-
-| Color          | Hex                                                                |
-| -------------- | ------------------------------------------------------------------ |
-| Navy           | ![#0a192f](https://via.placeholder.com/10/0a192f?text=+) `#0a192f` |
-| Light Navy     | ![#112240](https://via.placeholder.com/10/0a192f?text=+) `#112240` |
-| Lightest Navy  | ![#233554](https://via.placeholder.com/10/303C55?text=+) `#233554` |
-| Slate          | ![#8892b0](https://via.placeholder.com/10/8892b0?text=+) `#8892b0` |
-| Light Slate    | ![#a8b2d1](https://via.placeholder.com/10/a8b2d1?text=+) `#a8b2d1` |
-| Lightest Slate | ![#ccd6f6](https://via.placeholder.com/10/ccd6f6?text=+) `#ccd6f6` |
-| White          | ![#e6f1ff](https://via.placeholder.com/10/e6f1ff?text=+) `#e6f1ff` |
-| Green          | ![#64ffda](https://via.placeholder.com/10/64ffda?text=+) `#64ffda` |
+- `src/garden/portfolio-data.js` contains the public experience and contact details.
+- Use only `contact@yanivakiva.com`. Never add the private CV PDF, phone number, or personal email to this repository or its build.
+- `public/og.png` is the garden-and-fox sharing card. Its metadata is in `index.html`, available without JavaScript.
+- Favicons and home-screen icons use the approved YA/ mark.
+- To reproduce brand exports on macOS: `swift scripts/build-brand-assets.swift public/fonts/SpaceGrotesk-Medium.ttf`. Both font weights and their OFL license are included.
+- Design previews, recordings, and production intermediates stay local; they are not needed for deployment.
