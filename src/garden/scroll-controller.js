@@ -68,7 +68,6 @@ export function createJourneyScroll({ browser = window, document = window.docume
   function frameLoop(time) {
     if (disposed) return;
     const elapsed = last === null || time - last > 1000 || document.hidden ? 0 : Math.max(0, time - last);
-    const delta = Math.min(32, elapsed);
     last = time;
     const film = playback.current;
     if (tour) {
@@ -91,7 +90,10 @@ export function createJourneyScroll({ browser = window, document = window.docume
       // real elapsed time even when a requested image is still loading. The
       // renderer retains its sharp last frame and catches up independently.
       // The optional tour has its own clock; neither input path blocks on decode.
-      clock += delta; smooth.raf(clock);
+      // Lenis already applies time-based damping. Capping its clock to 32ms
+      // made a 100ms decode frame advance only 32ms, stretching wheel inertia
+      // and making the page feel stuck precisely when the browser was busy.
+      clock += elapsed; smooth.raf(clock);
     }
     frame = browser.requestAnimationFrame(frameLoop);
   }

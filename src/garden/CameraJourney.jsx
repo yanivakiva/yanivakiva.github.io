@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { clamp, coverRect, FrameCache } from "./camera-math";
 import { cinematicFrame, portalGeometry, portalHandoff } from "./cinematic-math";
 import { drawScreenSurface } from "./screen-surface";
+import { createMediaScrubber } from "./media-scrubber";
 import EditorResume from "./BuildLog";
 
 const ASSETS = "/garden/cinematic";
@@ -10,7 +11,7 @@ const PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)";
 export default function CameraJourney({ enabled, onProgress, playback, selectedRole }) {
   const root = useRef(null), canvas = useRef(null), copy = useRef(null), indicator = useRef(null), arrival = useRef(null);
   const scene = useRef(null), portal = useRef(null), terminal = useRef(null), progress = useRef(0), previous = useRef(null);
-  const companion = useRef(null);
+  const companion = useRef(null), movie = useRef(null);
   const [variant, setVariant] = useState(() => matchMedia(PORTRAIT_QUERY).matches ? "portrait" : "wide");
   const [failed, setFailed] = useState(false), [posterFailed, setPosterFailed] = useState(false);
   const animated = enabled && !failed;
@@ -47,11 +48,13 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
       onProgress(); return;
     }
     const node = root.current, stage = node.querySelector(".camera-stage");
-    let metadata, cache, disposed = false, raf = 0, lastFrame = 0, lastBitmap, failures = 0;
+    let metadata, cache, media, disposed = false, raf = 0, lastFrame = 0, lastBitmap, failures = 0;
     const controller = new AbortController();
     // React keeps this canvas across aspect-ratio changes. Reveal the new
     // variant's poster until a matching frame has actually decoded.
     canvas.current.style.opacity = "0";
+    movie.current.style.opacity = "0";
+    const video = movie.current;
     const context = canvas.current.getContext("2d", { alpha: false });
     if (!context) { setFailed(true); return; }
     const surface = terminal.current.getContext("2d");
@@ -67,17 +70,23 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
     playback.current = {
       get travel() { return node.offsetHeight - stage.offsetHeight; },
       ensurePosition(y) {
-        if (!metadata || !cache) return false;
+        if (!metadata || (!cache && !media)) return false;
         const p = clamp((y - (node.getBoundingClientRect().top + window.scrollY)) / Math.max(1, this.travel));
         if (p > metadata.filmEnd) return true; // The sharp final plate handles the approach.
         const index = cinematicFrame(p, metadata.count, metadata.filmEnd);
-        cache.request(index);
-        return cache.frames.has(index) || cache.failed.has(index);
+        request(index);
+        return media ? media.ready(index) : cache.frames.has(index) || cache.failed.has(index);
       },
     };
+    function request(index) { if (media) media.request(index); else cache?.request(index); }
     function overlays() {
       const p = progress.current;
-      const visualProgress = metadata && p < metadata.filmEnd ? lastFrame / (metadata.count - 1) * metadata.filmEnd : p;
+      const atStart = p < .001;
+      const visualProgress = atStart ? 0 : metadata && p < metadata.filmEnd ? lastFrame / (metadata.count - 1) * metadata.filmEnd : p;
+      // Returning to the top must immediately restore the sharp opening plate,
+      // even when a distant frame is still finishing a network seek/decode.
+      if (media) video.style.opacity = !atStart && lastFrame > 0 ? "1" : "0";
+      if (cache) canvas.current.style.opacity = !atStart && lastFrame > 0 ? "1" : "0";
       copy.current.style.opacity = String(1 - clamp(p / .12));
       copy.current.style.visibility = p >= .12 ? "hidden" : "visible";
       copy.current.style.transform = `translateY(${-Math.min(p, .12) * 160}px)`;
@@ -90,7 +99,7 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
       indicator.current.querySelector(".camera-chapter").textContent = p < .35 ? "01 / THE GARDEN" : p < .58 ? "02 / ACROSS THE BRIDGE" : p < .8 ? "03 / THE WORKSHOP" : "04 / INSIDE THE WORK";
       const filmEnd = metadata?.filmEnd ?? .8, inDisplay = p >= filmEnd;
       // A preloaded final plate prevents a stale garden frame when reversing from a deep link.
-      const frame = inDisplay ? metadata?.frames.at(-1) : metadata?.frames[lastFrame];
+      const frame = atStart ? null : inDisplay ? metadata?.frames.at(-1) : metadata?.frames[lastFrame];
       arrival.current.style.opacity = inDisplay ? "1" : "0";
       const zoom = inDisplay ? clamp((p - filmEnd) / (1 - filmEnd)) : 0;
       const geometry = frame?.screen && portalGeometry(frame.screen, metadata.width, metadata.height, stage.clientWidth, stage.clientHeight, zoom);
@@ -132,7 +141,7 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
       const rect = node.getBoundingClientRect(), travel = node.offsetHeight - stage.offsetHeight;
       progress.current = clamp(-rect.top / Math.max(1, travel));
       onProgress(); overlays();
-      if (metadata && rect.bottom > 0 && rect.top < innerHeight) cache.request(cinematicFrame(progress.current, metadata.count, metadata.filmEnd));
+      if (metadata && rect.bottom > 0 && rect.top < innerHeight) request(cinematicFrame(progress.current, metadata.count, metadata.filmEnd));
     }
     function schedule() { if (!raf) raf = requestAnimationFrame(update); }
     const observer = new ResizeObserver(() => { if (lastBitmap && cache?.frames.has(lastFrame)) paint(lastBitmap, lastFrame); schedule(); });
@@ -145,7 +154,11 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
       if (disposed) return;
       if (data.count < 31 || data.frames.length !== data.count || !data.frames.at(-1).screen) throw new Error("Incomplete film");
       metadata = data;
-      cache = new FrameCache({ count: data.count, paint, frameBytes: data.width * data.height * 4,
+      function fallback() {
+        if (disposed || cache) return;
+        media?.destroy(); media = null; video.style.opacity = "0";
+        node.dataset.renderer = "frames";
+        cache = new FrameCache({ count: data.count, paint, frameBytes: data.width * data.height * 4,
         budget: (variant === "portrait" ? 96 : 144) * 1024 * 1024,
         concurrency: variant === "portrait" ? 3 : 2,
         onError: (_, index) => {
@@ -159,10 +172,24 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
           if (onDecodeStart?.() === false) throw new DOMException("Stale frame", "AbortError");
           return createImageBitmap(blob);
         },
-      });
+        });
+        update();
+      }
+      if (video.canPlayType('video/webm; codecs="av01.0.12M.08"')) {
+        node.dataset.renderer = "video";
+        media = createMediaScrubber(video, { count: data.count, fps: data.fps,
+          onFrame(index) {
+            if (disposed) return;
+            lastFrame = index; node.dataset.frame = String(index);
+            video.style.opacity = index > 0 ? "1" : "0";
+            overlays();
+          }, onError: fallback });
+        video.src = `${ASSETS}/motion-${variant}-v1.webm`;
+        video.load();
+      } else fallback();
       update();
     }).catch(error => { if (!disposed && error.name !== "AbortError") setFailed(true); });
-    return () => { disposed = true; playback.current = null; screenImage.onload = null; controller.abort(); cache?.destroy(); observer.disconnect(); cancelAnimationFrame(raf);
+    return () => { disposed = true; playback.current = null; screenImage.onload = null; controller.abort(); media?.destroy(); cache?.destroy(); observer.disconnect(); cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); };
   }, [animated, variant, onProgress, playback]);
   return <section className="camera-journey" id="home" ref={root} data-animated={animated} aria-label="A workshop above the clouds">
@@ -172,7 +199,7 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
           {!posterFailed && <source media={PORTRAIT_QUERY} srcSet={`${ASSETS}/hero-portrait.webp 940w, ${ASSETS}/hero-portrait-retina.webp 1880w`} sizes="100vw" />}
           <img src={posterFailed ? "/garden/arrival-scene.webp" : `${ASSETS}/hero-wide.webp`} srcSet={posterFailed ? undefined : `${ASSETS}/hero-wide.webp 1672w, ${ASSETS}/hero-wide-retina.webp 3344w`} sizes="100vw" alt="" width="1672" height="941" fetchpriority="high" onError={() => setPosterFailed(true)} />
         </picture>
-        {animated && <canvas ref={canvas} className="camera-sequence" />}
+        {animated && <><video ref={movie} className="camera-movie" muted playsInline preload="auto" disablePictureInPicture tabIndex={-1} /><canvas ref={canvas} className="camera-sequence" /></>}
         <img ref={arrival} className="camera-arrival-poster" src={`${ASSETS}/arrival-${variant}.webp`} alt="" fetchpriority="low" />
       </div>
       <div className="camera-companion" ref={companion} aria-hidden="true"><img src="/garden/companion-v2.webp" width="1254" height="1254" alt="" /></div>

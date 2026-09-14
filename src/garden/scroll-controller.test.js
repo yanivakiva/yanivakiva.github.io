@@ -171,6 +171,19 @@ test("fast direction changes do not stall at the film or CV boundaries", () => {
   assert.equal(f.checks, 0); f.controller.destroy();
 });
 
+test("manual wheel inertia keeps real speed through expensive decode frames", () => {
+  for (const interval of [16, 40, 100, 200]) {
+    const f = fixture({ ready: false });
+    f.smooth.targetScroll = 1000;
+    f.tick(0);
+    for (let time = interval; time < 1000; time += interval) f.tick(time);
+    f.tick(1000);
+    assert.ok(f.browser.scrollY > 999, `Wheel motion must settle in real time at ${interval}ms/frame`);
+    assert.equal(f.rafTimes.at(-1) - f.rafTimes[0], 1000);
+    f.controller.destroy();
+  }
+});
+
 test("Skip and history-style immediate navigation leave a paused tour and complete only the new destination", () => {
   for (const immediate of [false, true]) {
     const f = fixture(); f.start(); f.tick(0); f.tick(32); f.controller.pause();
