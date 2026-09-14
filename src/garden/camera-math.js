@@ -35,6 +35,7 @@ export class FrameCache {
     this.frames = new Map(); this.pending = new Map(); this.queue = []; this.target = 0; this.closed = false;
     this.direction = 1; this.failed = new Set(); this.paintedFrame = null; this.paintedIndex = null;
     this.decoding = new WeakSet();
+    this.loadDirections = new WeakMap();
   }
   candidates() {
     // Learn decoded size from the first bitmap, or accept it from a manifest.
@@ -59,12 +60,12 @@ export class FrameCache {
     if (this.target !== old) this.direction = Math.sign(this.target - old);
     this.failed.clear(); this.refreshQueue();
     const wanted = new Set(this.candidates());
-    // Cancel obsolete network work, but let an uncancellable bitmap decode
-    // finish. Otherwise a slow decoder can miss every six-frame window and
-    // never advance the image while scrolling. Neither phase releases its
-    // concurrency slot until the actual load promise settles.
+    // A moving target must not repeatedly cancel useful downloads: on a real
+    // network the entire six-frame window can pass before one response arrives.
+    // Keep useful forward progress in BOTH fetch and decode phases. Reversals
+    // can still cancel genuinely obsolete downloads, never an active decoder.
     for (const [i, controller] of this.pending) {
-      if (!wanted.has(i) && !this.decoding.has(controller)) controller.abort();
+      if (!wanted.has(i) && !this.decoding.has(controller) && !this.useful(i, this.loadDirections.get(controller))) controller.abort();
     }
     this.draw(); this.pump();
   }
@@ -101,10 +102,11 @@ export class FrameCache {
       if (this.frames.has(i) || this.pending.has(i)) continue;
       const controller = new AbortController(); this.pending.set(i, controller);
       const direction = this.direction;
+      this.loadDirections.set(controller, direction);
       // Call immediately before createImageBitmap, after fetching the bytes.
       // A false result lets the loader avoid starting an already-obsolete decode.
       const onDecodeStart = () => {
-        if (this.closed || controller.signal.aborted) return false;
+        if (this.closed || controller.signal.aborted || !this.useful(i, direction)) return false;
         this.decoding.add(controller); return true;
       };
       this.load(i, controller.signal, { onDecodeStart }).then(frame => {

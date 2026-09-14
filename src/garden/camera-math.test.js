@@ -133,7 +133,7 @@ test("high-resolution decode concurrency stays bounded without changing source d
   assert.equal(peak, 2); assert.ok(cache.frames.has(6)); assert.equal(cache.frames.size, 6);
   cache.destroy();
 });
-test("a six-frame high-resolution window aborts unmarked stale loads without releasing their slots early", async () => {
+test("a six-frame high-resolution window aborts wrong-direction downloads without releasing their slots early", async () => {
   const jobs = new Map(), started = [], closed = [], painted = [];
   let active = 0, peak = 0;
   const cache = new FrameCache({ count: 386, concurrency: 2,
@@ -147,21 +147,21 @@ test("a six-frame high-resolution window aborts unmarked stale loads without rel
     }, paint: (_, index) => painted.push(index) });
   cache.request(100);
   assert.deepEqual(started, [100, 101]);
-  cache.request(110);
+  cache.request(0);
   assert.equal(cache.candidates().length, 6);
   assert.ok(jobs.get(100).signal.aborted); assert.ok(jobs.get(101).signal.aborted);
   assert.deepEqual(started, [100, 101], "An abort cannot free a decoder before it settles");
   assert.equal(cache.pending.size, 2);
   jobs.get(100).finish();
   await new Promise(resolve => setImmediate(resolve));
-  assert.deepEqual(started, [100, 101, 110], "The exact current target takes the first available slot");
+  assert.deepEqual(started, [100, 101, 0], "The exact current target takes the first available slot");
   assert.deepEqual(closed, [100]); assert.deepEqual(painted, []);
   jobs.get(101).finish();
   await new Promise(resolve => setImmediate(resolve));
   assert.deepEqual(closed, [100, 101]); assert.deepEqual(painted, []);
-  jobs.get(110).finish();
+  jobs.get(0).finish();
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(painted.at(-1), 110); assert.equal(peak, 2);
+  assert.equal(painted.at(-1), 0); assert.equal(peak, 2);
   cache.destroy();
   for (const index of cache.pending.keys()) jobs.get(index).finish();
   await new Promise(resolve => setImmediate(resolve));
@@ -218,15 +218,38 @@ test("obsolete fetches cannot enter decoding and late aborted results are dispos
   const loader = controlledFrames({ decoding: false }), painted = [];
   const cache = new FrameCache({ count: 386, concurrency: 2, frameBytes: 3200 * 1800 * 4,
     budget: 144 * 1024 * 1024, load: loader.load, paint: (_, index) => painted.push(index) });
-  cache.request(100); cache.request(110);
+  cache.request(100); cache.request(0);
   assert.equal(loader.jobs.get(100).signal.aborted, true);
   assert.equal(loader.jobs.get(100).onDecodeStart(), false);
   assert.equal(loader.started.length, 2, "An aborted fetch still owns its slot until settled");
   loader.jobs.get(100).finish(); await flushLoads();
   assert.equal(loader.bitmaps[0].closed, true); assert.deepEqual(painted, []);
   await finishControlledLoads(loader);
-  assert.equal(painted.at(-1), 110); assert.equal(loader.peak, 2);
+  assert.equal(painted.at(-1), 0); assert.equal(loader.peak, 2);
   cache.destroy(); assert.ok(loader.bitmaps.every(frame => frame.closed));
+});
+test("180ms network responses keep advancing while the target outruns the decoded window", async () => {
+  let now = 0, jobs = [], aborted = 0;
+  const painted = [], budget = 144 * 1024 * 1024;
+  const cache = new FrameCache({ count: 386, concurrency: 2, frameBytes: 3200 * 1800 * 4, budget,
+    load: (index, signal, { onDecodeStart }) => new Promise((resolve, reject) => {
+      const job = { at: now + 180, finish() {
+        if (!onDecodeStart()) return reject(new DOMException("Stale", "AbortError"));
+        resolve({ width: 3200, height: 1800, close() {} });
+      } };
+      jobs.push(job);
+      signal.addEventListener("abort", () => { aborted++; jobs = jobs.filter(j => j !== job); reject(new DOMException("Aborted", "AbortError")); }, { once: true });
+    }), paint: (_, index) => painted.push({ now, index }) });
+  for (now = 0; now <= 1200; now += 16) {
+    cache.request(Math.floor(now / 16) * 3);
+    const ready = jobs.filter(j => j.at <= now); jobs = jobs.filter(j => j.at > now);
+    ready.forEach(j => j.finish()); await flushLoads();
+    assert.ok(residentBytes(cache) <= budget); assert.ok(cache.pending.size <= 2);
+  }
+  assert.equal(aborted, 0, "Forward progress must not restart unfinished network transfers");
+  assert.ok(painted.length >= 10, "The scene must move before scrolling stops");
+  assert.ok(painted.at(-1).index >= 150);
+  cache.destroy(); await flushLoads();
 });
 test("destroy disposes uncancellable decodes without painting or starting replacement work", async () => {
   const loader = controlledFrames();
