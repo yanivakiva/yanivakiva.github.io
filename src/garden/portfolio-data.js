@@ -1,9 +1,9 @@
 // Source: Yaniv Akiva CTO CV, supplied September 14, 2026.
 // The source PDF is private. Only the public contact address belongs on the site.
-export const profile = { name: "YANIV AKIVA", email: "contact@yanivakiva.com", role: "Co-Founder & CTO at Fidesa", portrait: "/garden/yaniv-portrait.jpg" };
+export const profile = { name: "YANIV AKIVA", email: "contact@yanivakiva.com", role: "Co-Founder & CTO at Stealth Labs", portrait: "/garden/yaniv-portrait.jpg" };
 export const career = [
-  { company: "Fidesa Labs", url: "https://fidesa.ai", role: "Co-Founder & CTO", dates: "May 2026 — Present", years: "2026 — now", slug: "fidesa", number: "01",
-    title: "From a spec to a model you can ship.", description: "I co-founded Fidesa and lead the engineering. Our platform autonomously turns customer requirements into purpose-built AI models — and we build the infrastructure to get them into production.",
+  { company: "Stealth Labs", redacted: true, role: "Co-Founder & CTO", dates: "May 2026 — Present", years: "2026 — now", slug: "stealth", number: "01",
+    title: "From a spec to a model you can ship.", description: "I co-founded the company and lead the engineering. Our platform autonomously turns customer requirements into purpose-built AI models — and we build the infrastructure to get them into production.",
     points: ["Designed the path from model development to GPU serving: reproducible builds, versioned artifacts, and monitored releases.", "Built the platform on AWS EKS with Kubernetes, Terraform, NVIDIA Triton, Prometheus, and Grafana.", "Led customer discovery and pilot delivery, turning requirements into model specifications and evaluation plans."],
     more: ["Built dynamic, specification-driven MLOps pipelines supporting multiple model types and workloads.", "Engineered Python and Rust systems with an emphasis on scalability, reproducibility, artifact integrity, observability, and controlled releases.", "Own technical strategy, architecture, the engineering roadmap, delivery planning, infrastructure, and investor-facing technical positioning."],
     proof: "Validated purpose-built models with approximately 30× lower compute requirements and comparable or better task quality than general-purpose alternatives.",

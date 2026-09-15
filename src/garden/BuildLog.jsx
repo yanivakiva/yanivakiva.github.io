@@ -4,11 +4,16 @@ import { career, expertise, profile } from "./portfolio-data";
 import { printDisclosures } from "./journey-state";
 import "./build-log.css";
 
+function CompanyName({ company = career[0] }) {
+  if (!company.redacted) return company.company;
+  return <span className="build-stealth-name"><span className="build-redaction" aria-hidden="true" /><span className="sr-only">Stealth</span> Labs</span>;
+}
+
 export function EditorOpening({ preview = false }) {
   return <div className="build-opening">
     <p className="build-path"><strong>YANIV AKIVA</strong><span aria-hidden="true"> / </span>~/work</p>
     <h2 id={preview ? undefined : "experience-title"}>i build stuff sometimes<span className="build-cursor" aria-hidden="true" /></h2>
-    <p className="build-intro">Currently building <a href="https://fidesa.ai" target="_blank" rel="noreferrer" tabIndex={preview ? -1 : undefined}>Fidesa<span className="sr-only"> (opens in new tab)</span></a>. Previously Sygnia, DOKKA, and IDF Intelligence.</p>
+    <p className="build-intro">Currently building <CompanyName />. Previously Sygnia, DOKKA, and IDF Intelligence.</p>
   </div>;
 }
 export default function BuildLog({ preview = false, selected = career[0].slug, onSelect = () => {} } = {}) {
@@ -28,7 +33,7 @@ export default function BuildLog({ preview = false, selected = career[0].slug, o
       <div className="build-index" role="group" aria-label="Choose an experience to read">
         <div className="build-index-head" aria-hidden="true"><span>#</span><span>COMPANY</span><span className="build-index-role">ROLE</span><span className="build-index-date">PERIOD</span><span /></div>
         {career.map(role => <button type="button" key={role.slug} className="build-index-row" aria-pressed={role.slug === active} aria-controls={preview ? undefined : role.slug} tabIndex={focus} onClick={() => onSelect(role.slug)}>
-          <span className="build-index-number">{role.number}</span><span className="build-company">{role.company}</span><span className="build-index-role">{role.role}</span><span className="build-index-date">{role.dates}</span><span className="build-index-symbol" aria-hidden="true">{role.slug === active ? "−" : "+"}</span>
+          <span className="build-index-number">{role.number}</span><span className="build-company"><CompanyName company={role} /></span><span className="build-index-role">{role.role}</span><span className="build-index-date">{role.dates}</span><span className="build-index-symbol" aria-hidden="true">{role.slug === active ? "−" : "+"}</span>
         </button>)}
       </div>
       <div className="build-panels">
@@ -52,8 +57,8 @@ export default function BuildLog({ preview = false, selected = career[0].slug, o
       <section id={preview ? undefined : "about"} className="build-about" aria-labelledby={preview ? undefined : "about-title"} tabIndex={preview ? undefined : -1}>
         <div className="build-sectionline"><span>ABOUT</span><span>about.md</span></div>
         <div className="build-about-grid"><div><p className="build-path">// the person behind the keyboard</p><h2 id={preview ? undefined : "about-title"}>hey, I’m Yaniv.</h2>
-          <p>I’m a co-founder and hands-on engineer at Fidesa, based in Israel. I work across Python, Rust, distributed systems, and the infrastructure that gets AI models into production.</p>
-          <p>Before Fidesa, I worked on security platforms at Sygnia, document intelligence at DOKKA, and led an engineering team in the IDF Intelligence Corps.</p>
+          <p>I’m a co-founder and hands-on engineer building in stealth, based in Israel. I work across Python, Rust, distributed systems, and the infrastructure that gets AI models into production.</p>
+          <p>Before this, I worked on security platforms at Sygnia, document intelligence at DOKKA, and led an engineering team in the IDF Intelligence Corps.</p>
           <div className="build-social"><a href="https://github.com/yanivakiva" target="_blank" rel="noreferrer" tabIndex={focus}><Github size={18} aria-hidden="true" focusable="false" /> GitHub<span className="sr-only"> (opens in new tab)</span></a><a href="https://www.linkedin.com/in/yanivakiva" target="_blank" rel="noreferrer" tabIndex={focus}><Linkedin size={18} aria-hidden="true" focusable="false" /> LinkedIn<span className="sr-only"> (opens in new tab)</span></a></div>
         </div><figure><img src={profile.portrait} width="1023" height="1091" loading="lazy" decoding="async" alt="Yaniv Akiva smiling, wearing a black shirt against a blue background." /><figcaption>YANIV AKIVA / Israel</figcaption></figure></div>
         <details className="build-expertise"><summary tabIndex={focus}><Plus size={16} aria-hidden="true" focusable="false" /> The technical toolbox</summary><dl>{expertise.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></details>

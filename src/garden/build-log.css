@@ -16,6 +16,9 @@
 .build-log .build-opening h2 { margin-top:17px; font:500 clamp(1.6rem,3.25vw,3rem)/1.35 var(--build-mono); letter-spacing:-.055em; }
 .build-log .build-cursor { display:inline-block; width:.45em; height:.9em; vertical-align:-.05em; margin-left:10px; background:var(--build-accent); }
 .build-log .build-intro { margin-top:14px; color:var(--build-muted); font:400 .9375rem/1.85 var(--build-mono); }
+.build-log .build-stealth-name { white-space:nowrap; }
+.build-log .build-redaction { display:inline-block; width:3.6em; height:.78em; border:1px solid currentColor; border-radius:2px; background:currentColor; vertical-align:-.02em; }
+.build-log .build-intro .build-stealth-name { color:var(--build-accent); }
 .build-log a { color:var(--build-accent); }
 .camera-portfolio .build-log a:hover { color:var(--build-text); }
 .build-log a:hover { text-decoration:underline; text-underline-offset:4px; }

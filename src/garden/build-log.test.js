@@ -15,14 +15,28 @@ runInNewContext(compiled,{module:loaded,exports:loaded.exports,require:createReq
 const render=props=>renderToStaticMarkup(React.createElement(loaded.exports.default,props));
 const escape=value=>renderToStaticMarkup(React.createElement(React.Fragment,null,value));
 
-test("approved build log opens Fidesa and offers all four real roles",()=>{
+test("approved build log opens the stealth company and offers all four real roles",()=>{
   const html=render();
   assert.ok(html.includes('i build stuff sometimes'));
   assert.equal((html.match(/class="build-index-row"/g)||[]).length,4);
   assert.equal((html.match(/aria-pressed="true"/g)||[]).length,1);
-  assert.match(html,/<article class="build-role" id="fidesa" aria-labelledby="fidesa-title" tabindex="-1">/);
+  assert.match(html,/<article class="build-role" id="stealth" aria-labelledby="stealth-title" tabindex="-1">/);
   assert.doesNotMatch(html,/Selected <em>experience|3 petabytes|approximately 30%/);
   assert.ok(html.includes("more than 5 PB"));
+});
+test("the stealth name is genuinely removed, not visually hidden over identifying text",()=>{
+  assert.equal(career[0].company,"Stealth Labs");
+  assert.equal(career[0].redacted,true);
+  assert.equal(Object.hasOwn(career[0],"url"),false);
+  const metadata=readFileSync(new URL("../../index.html",import.meta.url),"utf8");
+  const terminal=readFileSync(new URL("../../public/garden/terminal-screen.svg",import.meta.url),"utf8");
+  assert.match(terminal,/aria-label="Stealth Labs"/);
+  for(const preview of [false,true]) {
+    const html=render({preview});
+    assert.match(html,/<span class="build-redaction" aria-hidden="true"><\/span><span class="sr-only">Stealth<\/span> Labs/);
+    assert.doesNotMatch(html+compiled+metadata+terminal+JSON.stringify({profile,career}),/fidesa/i);
+    assert.match(html,/stealth\.log/);
+  }
 });
 test("each selection exposes only its panel, with matching controls and accessible headings",()=>{
   for(const selected of career.map(role=>role.slug)) {
