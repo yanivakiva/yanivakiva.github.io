@@ -31,6 +31,26 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 .camera-introduction h1 em { font-weight:300; }
 .camera-description { font:16px/1.65 var(--sans); color:#465444; letter-spacing:-.2px; }
 .camera-cta { border-bottom:1px solid #65725c; display:inline-flex; gap:30px; align-items:center; padding:15px 0 11px; margin-top:5px; font-size:12px; }
+.garden-opening { min-height:64px; }
+.garden-opening-loading { width:255px; max-width:78vw; margin-top:23px; }
+.garden-opening-label { display:flex; justify-content:space-between; gap:16px; color:#21342c; font:400 13px/1.5 var(--mono); }
+.garden-opening-label > :last-child { color:#76503b; font-variant-numeric:tabular-nums; }
+.garden-opening-track { height:3px; background:#21342c24; border-radius:9px; overflow:hidden; margin-top:11px; }
+.garden-opening-track > span { display:block; height:100%; background:#ae613d; border-radius:9px; transition:width .25s ease; }
+.garden-opening-loading p { font:12px/1.6 var(--sans); color:#465444; margin:10px 0 0; }
+.garden-opening .garden-opening-skip { margin-top:12px; min-height:44px; font-size:13px; }
+.garden-opening-slow { max-width:290px; margin:22px 0 0; color:#465444; font:13px/1.7 var(--sans); }
+.camera-journey[data-opening="loading"] .camera-companion img { animation:garden-opening-float 3.2s ease-in-out infinite; }
+@keyframes garden-opening-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+@media (prefers-reduced-motion:reduce) {
+  .camera-journey[data-opening="loading"] .camera-companion img { animation:none; }
+  .garden-opening-track > span { transition:none; }
+}
+@media (max-height:700px) {
+  .garden-opening-loading { margin-top:12px; }
+  .garden-opening-loading p { display:none; }
+  .garden-opening .garden-opening-skip { margin-top:5px; }
+}
 .camera-footer { position:absolute; bottom:29px; left:4.5vw; right:4.5vw; display:flex; justify-content:space-between; align-items:center; font:9px var(--mono); letter-spacing:1.4px; }
 .camera-scroll-label { display:flex; align-items:center; gap:12px; }
 .camera-progress { width:100%; position:absolute; height:1px; bottom:-14px; background:#7c86694d; }

@@ -1,10 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { clamp, coverRect, FrameCache } from "./camera-math";
 import { cinematicFrame, portalGeometry, portalHandoff } from "./cinematic-math";
 import { drawScreenSurface } from "./screen-surface";
 import { createMediaScrubber } from "./media-scrubber";
 import EditorResume from "./BuildLog";
+import GardenOpening from "./GardenOpening";
+import { canPrepareOpening, createOpeningReadiness, openingBufferFraction } from "./opening-readiness";
 
 const ASSETS = "/garden/cinematic";
 const PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)";
@@ -14,7 +16,10 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
   const companion = useRef(null), movie = useRef(null);
   const [variant, setVariant] = useState(() => matchMedia(PORTRAIT_QUERY).matches ? "portrait" : "wide");
   const [failed, setFailed] = useState(false), [posterFailed, setPosterFailed] = useState(false);
-  const animated = enabled && !failed;
+  const [opening, setOpening] = useState({ status: enabled ? "loading" : "off", progress: 0, reason: null });
+  const loadingMedia = enabled && !failed && opening.status !== "static";
+  const animated = loadingMedia && opening.status === "ready";
+  useEffect(() => { setOpening({ status: enabled ? "loading" : "off", progress: 0, reason: null }); }, [enabled, variant]);
   useEffect(() => { if (enabled) setFailed(false); }, [enabled, variant]);
   useEffect(() => {
     const query = matchMedia(PORTRAIT_QUERY);
@@ -37,7 +42,7 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
     return () => resize.disconnect();
   }, [animated, onProgress]);
   useEffect(() => {
-    if (!animated) {
+    if (!loadingMedia) {
       playback.current = null;
       Object.assign(copy.current.style, { opacity: "1", visibility: "visible", transform: "none" });
       scene.current.style.transform = "none"; portal.current.style.opacity = "0"; terminal.current.style.opacity = "0"; arrival.current.style.opacity = "0";
@@ -50,13 +55,25 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
     const node = root.current, stage = node.querySelector(".camera-stage");
     let metadata, cache, media, disposed = false, raf = 0, lastFrame = 0, lastBitmap, failures = 0;
     const controller = new AbortController();
+    const gate = createOpeningReadiness({ onChange: setOpening, canStart: () => canPrepareOpening({ scrollY: window.scrollY, hash: window.location.hash }) });
+    if (gate.state.status === "static") return () => gate.destroy();
+    const imageListeners = [], mediaListeners = [], preparedFrames = new Set();
+    function watchImage(image, key) {
+      const loaded = () => {
+        if (!image.complete || !image.naturalWidth) return;
+        image.decode().then(() => { if (!disposed) gate.update({ [key]: true }); }).catch(() => { if (!disposed) gate.skip("unavailable"); });
+      };
+      image.addEventListener("load", loaded); imageListeners.push(() => image.removeEventListener("load", loaded)); loaded();
+    }
+    watchImage(node.querySelector(".camera-poster img"), "poster");
+    watchImage(companion.current.querySelector("img"), "companion");
     // React keeps this canvas across aspect-ratio changes. Reveal the new
     // variant's poster until a matching frame has actually decoded.
     canvas.current.style.opacity = "0";
     movie.current.style.opacity = "0";
     const video = movie.current;
     const context = canvas.current.getContext("2d", { alpha: false });
-    if (!context) { setFailed(true); return; }
+    if (!context) { gate.destroy(); imageListeners.forEach(remove => remove()); setFailed(true); return; }
     const surface = terminal.current.getContext("2d");
     const screenImage = new Image(), texture = document.createElement("canvas"); let textureReady = false;
     // Rasterize once: repeatedly drawing an SVG under 192 affine transforms
@@ -70,6 +87,7 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
     playback.current = {
       get travel() { return node.offsetHeight - stage.offsetHeight; },
       ensurePosition(y) {
+        if (node.dataset.animated !== "true") return false;
         if (!metadata || (!cache && !media)) return false;
         const p = clamp((y - (node.getBoundingClientRect().top + window.scrollY)) / Math.max(1, this.travel));
         if (p > metadata.filmEnd) return true; // The sharp final plate handles the approach.
@@ -80,6 +98,17 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
     };
     function request(index) { if (media) media.request(index); else cache?.request(index); }
     function overlays() {
+      if (node.dataset.animated !== "true") {
+        scene.current.style.transform = "none"; arrival.current.style.opacity = "0";
+        video.style.opacity = "0"; canvas.current.style.opacity = "0";
+        portal.current.style.opacity = "0"; terminal.current.style.opacity = "0";
+        copy.current.style.opacity = "1"; copy.current.style.visibility = "visible"; copy.current.style.transform = "none";
+        companion.current.style.opacity = "1"; companion.current.style.transform = "none";
+        indicator.current.style.opacity = "1";
+        indicator.current.style.setProperty("--camera-progress", "0%");
+        indicator.current.querySelector(".camera-chapter").textContent = "01 / THE GARDEN";
+        return;
+      }
       const p = progress.current;
       const atStart = p < .001;
       const visualProgress = atStart ? 0 : metadata && p < metadata.filmEnd ? lastFrame / (metadata.count - 1) * metadata.filmEnd : p;
@@ -139,7 +168,8 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
     function update() {
       raf = 0;
       const rect = node.getBoundingClientRect(), travel = node.offsetHeight - stage.offsetHeight;
-      progress.current = clamp(-rect.top / Math.max(1, travel));
+      if (window.scrollY > 2) gate.skip("scroll");
+      progress.current = node.dataset.animated === "true" ? clamp(-rect.top / Math.max(1, travel)) : 0;
       onProgress(); overlays();
       if (metadata && rect.bottom > 0 && rect.top < innerHeight) request(cinematicFrame(progress.current, metadata.count, metadata.filmEnd));
     }
@@ -170,7 +200,12 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
           if (!response.ok) throw new Error("Frame unavailable");
           const blob = await response.blob();
           if (onDecodeStart?.() === false) throw new DOMException("Stale frame", "AbortError");
-          return createImageBitmap(blob);
+          const bitmap = await createImageBitmap(blob);
+          if (!disposed && !signal.aborted && index < 4) {
+            preparedFrames.add(index);
+            gate.update({ decoded: preparedFrames.has(0), buffered: preparedFrames.size / 4 });
+          }
+          return bitmap;
         },
         });
         update();
@@ -184,22 +219,28 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
             video.style.opacity = index > 0 ? "1" : "0";
             overlays();
           }, onError: fallback });
+        const buffered = () => gate.update({ decoded: video.readyState >= 2, buffered: openingBufferFraction(video.buffered) });
+        for (const event of ["progress", "loadeddata", "canplay", "canplaythrough"]) {
+          video.addEventListener(event, buffered); mediaListeners.push(() => video.removeEventListener(event, buffered));
+        }
         video.src = `${ASSETS}/motion-${variant}-v1.webm`;
         video.load();
       } else fallback();
       update();
     }).catch(error => { if (!disposed && error.name !== "AbortError") setFailed(true); });
-    return () => { disposed = true; playback.current = null; screenImage.onload = null; controller.abort(); media?.destroy(); cache?.destroy(); observer.disconnect(); cancelAnimationFrame(raf);
+    return () => { disposed = true; gate.destroy();
+      imageListeners.forEach(remove => remove()); mediaListeners.forEach(remove => remove());
+      playback.current = null; screenImage.onload = null; controller.abort(); media?.destroy(); cache?.destroy(); observer.disconnect(); cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); };
-  }, [animated, variant, onProgress, playback]);
-  return <section className="camera-journey" id="home" ref={root} data-animated={animated} aria-label="A workshop above the clouds">
+  }, [loadingMedia, variant, onProgress, playback]);
+  return <section className="camera-journey" id="home" ref={root} data-animated={animated} data-opening={enabled && !failed ? opening.status : "off"} aria-label="A workshop above the clouds">
     <div className="camera-stage">
       <div className="camera-scene-layer" ref={scene} aria-hidden="true">
         <picture className="camera-poster">
           {!posterFailed && <source media={PORTRAIT_QUERY} srcSet={`${ASSETS}/hero-portrait.webp 940w, ${ASSETS}/hero-portrait-retina.webp 1880w`} sizes="100vw" />}
           <img src={posterFailed ? "/garden/arrival-scene.webp" : `${ASSETS}/hero-wide.webp`} srcSet={posterFailed ? undefined : `${ASSETS}/hero-wide.webp 1672w, ${ASSETS}/hero-wide-retina.webp 3344w`} sizes="100vw" alt="" width="1672" height="941" fetchpriority="high" onError={() => setPosterFailed(true)} />
         </picture>
-        {animated && <><video ref={movie} className="camera-movie" muted playsInline preload="auto" disablePictureInPicture tabIndex={-1} /><canvas ref={canvas} className="camera-sequence" /></>}
+        {loadingMedia && <><video ref={movie} className="camera-movie" muted playsInline preload="auto" disablePictureInPicture tabIndex={-1} /><canvas ref={canvas} className="camera-sequence" /></>}
         <img ref={arrival} className="camera-arrival-poster" src={`${ASSETS}/arrival-${variant}.webp`} alt="" fetchpriority="low" />
       </div>
       <div className="camera-companion" ref={companion} aria-hidden="true"><img src="/garden/companion-v2.webp" width="1254" height="1254" alt="" /></div>
@@ -207,11 +248,11 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
         <p className="camera-eyebrow"><span /> ENGINEER / CO-FOUNDER / ISRAEL</p>
         <h1 aria-label="YANIV AKIVA">YANIV<br /><span>AKIVA</span></h1>
         <p className="camera-description">i build stuff sometimes.</p>
-        <a href="#experience" data-journey="true" className="camera-cta">Explore my work <ArrowUpRight size={19} aria-hidden="true" /></a>
+        <GardenOpening opening={enabled && !failed ? opening : { status: "off" }} animated={animated} />
       </div>
       <canvas className="camera-screen-code" ref={terminal} aria-hidden="true" />
       <div className="camera-portal-preview" ref={portal} aria-hidden="true"><EditorResume preview selected={selectedRole} /></div>
-      <div className="camera-footer" ref={indicator} aria-hidden="true"><span className="camera-chapter">01 / THE GARDEN</span><span className="camera-scroll-label">{animated ? "SCROLL TO WANDER" : "A WORKSHOP ABOVE THE CLOUDS"} <ArrowDown size={14} /></span><div className="camera-progress"><span /></div></div>
+      <div className="camera-footer" ref={indicator} aria-hidden="true"><span className="camera-chapter">01 / THE GARDEN</span><span className="camera-scroll-label">{animated ? "SCROLL TO WANDER" : "SCROLL TO EXPERIENCE"} <ArrowDown size={14} /></span><div className="camera-progress"><span /></div></div>
     </div>
   </section>;
 }
