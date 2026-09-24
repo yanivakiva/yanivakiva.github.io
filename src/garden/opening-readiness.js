@@ -17,25 +17,32 @@ export function canPrepareOpening({ scrollY, hash }) {
 }
 
 // This gate owns only the cinematic enhancement, never browser scrolling.
-// Once someone takes the static route, a late download cannot lengthen the
-// document beneath them. A motion toggle or orientation change can try again.
+// The soft deadline changes the message, not the media lifecycle. Only leaving
+// the opening (or an actual error) settles the static route, so a late download
+// can recover at the top without lengthening the document beneath a reader.
 export function createOpeningReadiness({ onChange, canStart = () => true,
   setTimer = setTimeout, clearTimer = clearTimeout }) {
   let state = { status: "loading", progress: 0, reason: null }, closed = false, timer;
   const assets = { poster: false, companion: false, decoded: false, buffered: 0 };
+  const pending = () => !closed && (state.status === "loading" || state.status === "slow");
   function finish(status, reason = null) {
-    if (closed || state.status !== "loading") return;
+    if (!pending()) return;
     clearTimer(timer);
     state = { status, progress: status === "ready" ? 100 : state.progress, reason };
     onChange(state);
   }
-  timer = setTimer(() => finish("static", "timeout"), OPENING_WAIT_MS);
+  timer = setTimer(() => {
+    if (!pending()) return;
+    if (!canStart()) { finish("static", "navigation"); return; }
+    state = { ...state, status: "slow" };
+    onChange(state);
+  }, OPENING_WAIT_MS);
   onChange(state);
   if (!canStart()) finish("static", "navigation");
   return {
     get state() { return state; },
     update(patch) {
-      if (closed || state.status !== "loading") return;
+      if (!pending()) return;
       Object.assign(assets, patch);
       if (!canStart()) { finish("static", "navigation"); return; }
       const media = assets.decoded ? Math.max(0, Math.min(1, assets.buffered)) : 0;

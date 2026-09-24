@@ -31,14 +31,31 @@ test("cold readiness requires decoded artwork and a decoded buffered opening", (
   h.gate.update({ decoded: true }); assert.deepEqual(h.gate.state, { status: "ready", progress: 100, reason: null });
   assert.equal(h.timer, null);
 });
-test("three-second deadline selects the static route even when nothing loads", () => {
+test("the three-second deadline stays recoverable without toggling Motion", () => {
   const h = harness(); assert.equal(h.wait, OPENING_WAIT_MS); assert.equal(h.wait, 3000);
-  h.expire(); assert.equal(h.gate.state.status, "static"); assert.equal(h.gate.state.reason, "timeout");
-  const count = h.states.length;
-  h.gate.update({ poster: true, companion: true, decoded: true, buffered: 1 });
-  assert.equal(h.states.length, count, "A late load never expands a static document");
+  h.expire(); assert.deepEqual(h.gate.state, { status: "slow", progress: 0, reason: null });
+  h.gate.update({ poster: true, companion: true });
+  assert.equal(h.gate.state.progress, 66); assert.equal(h.gate.state.status, "slow");
+  h.gate.update({ decoded: true, buffered: .5 }); assert.equal(h.gate.state.progress, 83);
+  h.gate.update({ buffered: 1 });
+  assert.deepEqual(h.gate.state, { status: "ready", progress: 100, reason: null });
+  assert.equal(h.timer, null);
 });
-test("scrolling and skip navigation permanently settle the current opening", () => {
+test("scrolling, skip navigation and errors settle both pending states without late reflow", () => {
+  for (const slow of [false, true]) for (const reason of ["scroll", "navigation", "unavailable"]) {
+    const h = harness(); if (slow) h.expire();
+    h.gate.skip(reason); h.expire();
+    h.gate.update({ poster: true, companion: true, decoded: true, buffered: 1 });
+    assert.equal(h.gate.state.status, "static"); assert.equal(h.gate.state.reason, reason);
+    assert.equal(h.timer, null);
+  }
+});
+test("late readiness rechecks the reader's position even before a scroll handler fires", () => {
+  const h = harness(); h.expire(); h.leave();
+  h.gate.update({ poster: true, companion: true, decoded: true, buffered: 1 });
+  assert.equal(h.gate.state.status, "static"); assert.equal(h.gate.state.reason, "navigation");
+});
+test("a timeout after navigation cannot reopen loading", () => {
   for (const reason of ["scroll", "navigation"]) {
     const h = harness(); h.gate.skip(reason); h.expire();
     h.gate.update({ poster: true, companion: true, decoded: true, buffered: 1 });
@@ -66,16 +83,18 @@ const compiled = buildSync({ entryPoints: [fileURLToPath(new URL("./GardenOpenin
 const loaded = { exports: {} };
 runInNewContext(compiled, { module: loaded, exports: loaded.exports, require: createRequire(import.meta.url) });
 const render = (opening, animated = false) => renderToStaticMarkup(React.createElement(loaded.exports.default, { opening, animated }));
-test("the loading control is a real CV link, never disabled or a queued tour", () => {
-  const html = render({ status: "loading", progress: 66 });
-  assert.match(html, /role="progressbar"[^>]*aria-valuenow="66"/);
-  assert.match(html, /href="#experience"[^>]*>Skip to experience/);
-  assert.doesNotMatch(html, /disabled|data-journey="true"/);
+test("both preparing states show real progress and a working direct CV link", () => {
+  for (const status of ["loading", "slow"]) {
+    const html = render({ status, progress: 66 });
+    assert.match(html, /role="progressbar"[^>]*aria-valuenow="66"/);
+    assert.match(html, /href="#experience"[^>]*>Skip to experience/);
+    assert.doesNotMatch(html, / hidden=|disabled|data-journey="true"|taking a moment/);
+  }
 });
-test("only a ready opening offers the cinematic tour; slow and motion-off states go directly to work", () => {
+test("only a ready opening offers the cinematic tour; skipped and motion-off states go directly to work", () => {
   assert.match(render({ status: "ready", progress: 100 }, true), /data-journey="true"[^>]*>Explore my work/);
   for (const status of ["static", "off"]) {
-    const html = render({ status, reason: "timeout" });
+    const html = render({ status, reason: "navigation" });
     assert.match(html, /View my experience/); assert.doesNotMatch(html, /data-journey="true"|disabled/);
   }
 });

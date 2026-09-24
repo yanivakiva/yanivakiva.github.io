@@ -22,6 +22,24 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
   useEffect(() => { setOpening({ status: enabled ? "loading" : "off", progress: 0, reason: null }); }, [enabled, variant]);
   useEffect(() => { if (enabled) setFailed(false); }, [enabled, variant]);
   useEffect(() => {
+    if (!enabled || failed || opening.status !== "static" || !["scroll", "navigation"].includes(opening.reason)) return;
+    // Skipping keeps the CV's layout stable. Returning explicitly to the garden
+    // prepares it again without requiring the visitor to toggle Motion.
+    const resume = () => {
+      if (canPrepareOpening({ scrollY: window.scrollY, hash: window.location.hash })) {
+        setOpening({ status: "loading", progress: 0, reason: null });
+      }
+    };
+    window.addEventListener("scroll", resume, { passive: true });
+    window.addEventListener("hashchange", resume);
+    window.addEventListener("popstate", resume);
+    return () => {
+      window.removeEventListener("scroll", resume);
+      window.removeEventListener("hashchange", resume);
+      window.removeEventListener("popstate", resume);
+    };
+  }, [enabled, failed, opening.status, opening.reason]);
+  useEffect(() => {
     const query = matchMedia(PORTRAIT_QUERY);
     const change = () => { setVariant(query.matches ? "portrait" : "wide"); setPosterFailed(false); };
     query.addEventListener("change", change);

@@ -39,11 +39,10 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 .garden-opening-track > span { display:block; height:100%; background:#ae613d; border-radius:9px; transition:width .25s ease; }
 .garden-opening-loading p { font:12px/1.6 var(--sans); color:#465444; margin:10px 0 0; }
 .garden-opening .garden-opening-skip { margin-top:12px; min-height:44px; font-size:13px; }
-.garden-opening-slow { max-width:290px; margin:22px 0 0; color:#465444; font:13px/1.7 var(--sans); }
-.camera-journey[data-opening="loading"] .camera-companion img { animation:garden-opening-float 3.2s ease-in-out infinite; }
+.camera-journey:is([data-opening="loading"], [data-opening="slow"]) .camera-companion img { animation:garden-opening-float 3.2s ease-in-out infinite; }
 @keyframes garden-opening-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
 @media (prefers-reduced-motion:reduce) {
-  .camera-journey[data-opening="loading"] .camera-companion img { animation:none; }
+  .camera-journey:is([data-opening="loading"], [data-opening="slow"]) .camera-companion img { animation:none; }
   .garden-opening-track > span { transition:none; }
 }
 @media (max-height:700px) {
