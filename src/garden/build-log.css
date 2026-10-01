@@ -35,6 +35,22 @@
 .build-log .build-index-date { color:var(--build-muted); font-size:.75rem; text-align:right; }
 .build-log .build-role { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(240px,.85fr); gap:48px; min-height:370px; scroll-margin-top:110px; }
 .build-log .build-role[hidden] { display:none; }
+.build-log .build-role-redacted { display:block; min-height:0; border:1px solid var(--build-line); border-radius:5px; overflow:hidden; }
+.build-log .build-role-redacted[hidden] { display:none; }
+.build-log .build-redacted-file { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:12px 18px; color:var(--build-muted); background:var(--build-panel); border-bottom:1px solid var(--build-line); font:400 .8125rem/1.6 var(--build-mono); }
+.build-log .build-redacted-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(160px,.4fr); gap:36px; padding:30px 24px 32px; }
+.build-log .build-mask { display:block; width:var(--redaction-width,100%); max-width:100%; height:12px; border-radius:1px; background:#b6c0ca; }
+.build-log .build-mask-title { height:25px; margin:2px 0 28px; background:#d8dfe5; }
+.build-log .build-mask-summary { display:grid; gap:12px; margin-bottom:31px; }
+.build-log .build-mask-bullets { display:grid; gap:26px; padding:0; margin:0; list-style:none; }
+.build-log .build-mask-bullets li { display:grid; grid-template-columns:12px minmax(0,1fr); gap:12px; align-items:start; }
+.build-log .build-mask-plus { color:var(--build-accent); font:400 1rem/.75 var(--build-mono); }
+.build-log .build-mask-lines { display:grid; gap:12px; }
+.build-log .build-mask-aside { border-left:1px solid var(--build-line); padding-left:25px; }
+.build-log .build-mask-aside > .build-mask { height:10px; margin-bottom:26px; }
+.build-log .build-mask-fields { display:grid; gap:22px; }
+.build-log .build-mask-field { display:grid; gap:10px; }
+.build-log .build-mask-field > :first-child { height:8px; background:#77899b; }
 .build-log .build-role h3 { margin:9px 0 13px; font:600 clamp(1.3rem,1.8vw,1.65rem)/1.45 var(--build-sans); letter-spacing:-.035em; }
 .build-log .build-description { max-width:64ch; }
 .build-log .build-achievements { list-style:none; padding:0; margin:18px 0 0; }
@@ -95,6 +111,9 @@
   .build-log .build-index-row { min-height:63px; font-size:.8125rem; }
   .build-log .build-index-date { font-size:.75rem; }
   .build-log .build-role { display:block; scroll-margin-top:94px; min-height:0; }
+  .build-log .build-redacted-layout { grid-template-columns:minmax(0,1fr); gap:29px; padding:25px 19px; }
+  .build-log .build-mask-aside { padding:22px 0 0; border-left:0; border-top:1px solid var(--build-line); }
+  .build-log .build-mask-fields { grid-template-columns:1fr 1fr; }
   .build-log .build-stack { margin-top:26px; border-left:0; padding:21px 0 0; border-top:1px solid var(--build-line); }
   .build-log .build-stack dl > div { font-size:.875rem; }
   .build-log .build-about { padding-top:64px; scroll-margin-top:25px; }
@@ -112,6 +131,13 @@
   .build-log .build-container { width:100%; max-width:none; }
   .build-log .build-opening,.build-log .build-index,.build-log .build-sectionline,.build-log .build-section-end,.build-log summary,.build-log .build-about figure,.build-log .build-contact-bottom { display:none; }
   .build-log .build-role,.build-log .build-role[hidden] { display:block !important; min-height:0; padding:14px 0; border-top:1px solid #ccc; break-inside:avoid; }
+  .build-log .build-role-redacted { border:0; border-radius:0; }
+  .build-log .build-redacted-file { display:none; }
+  .build-log .build-redacted-layout { padding:12px 0 4px; grid-template-columns:1fr; }
+  .build-log .build-mask-aside { display:none; }
+  .build-log .build-mask { background:#111; border:6px solid #111; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+  .build-log .build-mask-title { border-width:12px; }
+  .build-log .build-mask-bullets { gap:15px; }
   .build-log .build-role h3 { margin:4px 0; font:600 13pt/1.4 Arial,sans-serif; }
   .build-log .build-print-role { display:block; margin:4px 0 8px; font-weight:600; }
   .build-log .build-achievements { margin:8px 0; }

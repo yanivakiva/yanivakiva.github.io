@@ -2,13 +2,10 @@
 // The source PDF is private. Only the public contact address belongs on the site.
 export const profile = { name: "YANIV AKIVA", email: "contact@yanivakiva.com", role: "Co-Founder & CTO at Stealth Labs", portrait: "/garden/yaniv-portrait.jpg" };
 export const career = [
-  { company: "Stealth Labs", redacted: true, role: "Co-Founder & CTO", dates: "May 2026 — Present", years: "2026 — now", slug: "stealth", number: "01",
-    title: "From a spec to a model you can ship.", description: "I co-founded the company and lead the engineering. Our platform autonomously turns customer requirements into purpose-built AI models — and we build the infrastructure to get them into production.",
-    points: ["Designed the path from model development to GPU serving: reproducible builds, versioned artifacts, and monitored releases.", "Built the platform on AWS EKS with Kubernetes, Terraform, NVIDIA Triton, Prometheus, and Grafana.", "Led customer discovery and pilot delivery, turning requirements into model specifications and evaluation plans."],
-    more: ["Built dynamic, specification-driven MLOps pipelines supporting multiple model types and workloads.", "Engineered Python and Rust systems with an emphasis on scalability, reproducibility, artifact integrity, observability, and controlled releases.", "Own technical strategy, architecture, the engineering roadmap, delivery planning, infrastructure, and investor-facing technical positioning."],
-    proof: "Validated purpose-built models with approximately 30× lower compute requirements and comparable or better task quality than general-purpose alternatives.",
-    stack: [["code", "Python / Rust"], ["platform", "AWS / Kubernetes"], ["serving", "NVIDIA Triton"], ["delivery", "Helm / Terraform"]],
-    skills: ["Python", "Rust", "AWS", "Kubernetes", "NVIDIA Triton", "Terraform", "Prometheus", "Grafana"] },
+  // Keep private company details out of the source and shipped bundle entirely.
+  // Redaction geometry is decorative; it is not derived from private text.
+  { company: "Stealth Labs", redacted: true, role: "Co-Founder & CTO", dates: "2026 — now", years: "2026 — now", slug: "stealth", number: "01",
+    title: "Redacted experience", description: "", points: [], more: [], proof: "", stack: [], skills: [] },
   { company: "Sygnia", url: "https://www.sygnia.co/", role: "Senior Software Engineer", dates: "Dec 2022 — Aug 2026", years: "2022 — 2026", slug: "sygnia", number: "02",
     title: "A lot of data. A lot of responsibility.", description: "I helped turn a security platform used in a handful of engagements into one supporting nearly 300 companies across 29 countries, including Fortune 500 enterprises.",
     points: ["Designed and owned a production pipeline processing more than 5 PB of security telemetry every month.", "Built resilient multi-region, multi-AZ services on Kubernetes and automated releases with GitOps.", "Owned services end to end, from architecture and Rust telemetry components to on-call and incident investigation."],

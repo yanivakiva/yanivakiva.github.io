@@ -101,7 +101,7 @@ export default function CameraJourney({ enabled, onProgress, playback, selectedR
       texture.getContext("2d").drawImage(screenImage, 0, 0, texture.width, texture.height);
       textureReady = true; overlays();
     } };
-    screenImage.src = "/garden/terminal-screen.svg?v=stealth-20260915";
+    screenImage.src = "/garden/terminal-screen.svg?v=redacted-20261001";
     playback.current = {
       get travel() { return node.offsetHeight - stage.offsetHeight; },
       ensurePosition(y) {

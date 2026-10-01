@@ -15,7 +15,7 @@
     <text x="50" y="327" fill="#9aaabb">01</text><text x="99" y="327" fill="#98bded">now</text><text x="255" y="327" fill="#e6edf3">Co-Founder &amp; CTO /</text>
     <g role="img" aria-label="Stealth Labs" fill="#e6edf3"><rect x="494" y="311" width="76" height="16" rx="2"/><text x="583" y="327">Labs</text></g>
     <text x="50" y="373" fill="#9aaabb">02</text><text x="99" y="373" fill="#98bded">before</text><text x="255" y="373" fill="#e6edf3">Sygnia / DOKKA / IDF</text>
-    <text x="50" y="419" fill="#9aaabb">03</text><text x="99" y="419" fill="#98bded">focus</text><text x="255" y="419" fill="#e6edf3">AI · Infrastructure · Systems</text>
+    <text x="50" y="419" fill="#9aaabb">03</text><text x="99" y="419" fill="#98bded">focus</text><text x="255" y="419" fill="#e6edf3">Python · Rust · Systems</text>
   </g>
   <rect y="573" width="1000" height="52" fill="#17212b"/>
   <rect y="573" width="121" height="52" fill="#98bded"/>

@@ -9,6 +9,34 @@ function CompanyName({ company = career[0] }) {
   return <span className="build-stealth-name"><span className="build-redaction" aria-hidden="true" /><span className="sr-only">Stealth</span> Labs</span>;
 }
 
+function RedactionBar({ width, className = "" }) {
+  return <span className={`build-mask${className ? ` ${className}` : ""}`} style={{ "--redaction-width": `${width}%` }} />;
+}
+
+function RedactedExperience({ role, preview }) {
+  return <>
+    <h3 id={preview ? undefined : `${role.slug}-title`} className="sr-only">{role.title}</h3>
+    <p className="build-print-role">{role.company} · {role.role} · {role.dates}</p>
+    <p className="sr-only">Description, achievements, and technical details are redacted.</p>
+    <div className="build-redacted-file" aria-hidden="true"><span>current.log</span><span className="build-redaction" /></div>
+    <div className="build-redacted-layout" aria-hidden="true">
+      <div>
+        <RedactionBar width={64} className="build-mask-title" />
+        <div className="build-mask-summary"><RedactionBar width={94} /><RedactionBar width={72} /></div>
+        <ul className="build-mask-bullets">
+          {[[93, 65], [84, 56], [96, 74]].map(([first, second]) => <li key={first}><span className="build-mask-plus">+</span><div className="build-mask-lines"><RedactionBar width={first} /><RedactionBar width={second} /></div></li>)}
+        </ul>
+      </div>
+      <div className="build-mask-aside">
+        <RedactionBar width={70} />
+        <div className="build-mask-fields">
+          {[[27, 82], [39, 95], [33, 69], [42, 77]].map(([label, value]) => <div className="build-mask-field" key={label}><RedactionBar width={label} /><RedactionBar width={value} /></div>)}
+        </div>
+      </div>
+    </div>
+  </>;
+}
+
 export function EditorOpening({ preview = false }) {
   return <div className="build-opening">
     <p className="build-path"><strong>YANIV AKIVA</strong><span aria-hidden="true"> / </span>~/work</p>
@@ -37,7 +65,8 @@ export default function BuildLog({ preview = false, selected = career[0].slug, o
         </button>)}
       </div>
       <div className="build-panels">
-        {career.map(role => <article className="build-role" id={preview ? undefined : role.slug} key={role.slug} hidden={role.slug !== active} aria-labelledby={preview ? undefined : `${role.slug}-title`} tabIndex={preview ? undefined : -1}>
+        {career.map(role => <article className={`build-role${role.redacted ? " build-role-redacted" : ""}`} id={preview ? undefined : role.slug} key={role.slug} hidden={role.slug !== active} aria-labelledby={preview ? undefined : `${role.slug}-title`} tabIndex={preview ? undefined : -1}>
+          {role.redacted ? <RedactedExperience role={role} preview={preview} /> : <>
           <div className="build-role-main">
             <p className="build-path">{role.slug}.log <span aria-hidden="true">/</span> {role.fullRole || role.role}</p>
             <h3 id={preview ? undefined : `${role.slug}-title`}>{role.title}</h3>
@@ -51,13 +80,14 @@ export default function BuildLog({ preview = false, selected = career[0].slug, o
             <p className="build-proof">{role.proof}</p>
             {role.url && <a className="build-company-link" href={role.url} target="_blank" rel="noreferrer" tabIndex={focus}>{role.company} <ArrowUpRight size={16} aria-hidden="true" focusable="false" /><span className="sr-only"> (opens in new tab)</span></a>}
           </aside>
+          </>}
         </article>)}
       </div>
       <div className="build-section-end" aria-hidden="true"><span>yaniv@work:~ $</span><span>Python · Rust · systems that ship</span></div>
       <section id={preview ? undefined : "about"} className="build-about" aria-labelledby={preview ? undefined : "about-title"} tabIndex={preview ? undefined : -1}>
         <div className="build-sectionline"><span>ABOUT</span><span>about.md</span></div>
         <div className="build-about-grid"><div><p className="build-path">// the person behind the keyboard</p><h2 id={preview ? undefined : "about-title"}>hey, I’m Yaniv.</h2>
-          <p>I’m a co-founder and hands-on engineer building in stealth, based in Israel. I work across Python, Rust, distributed systems, and the infrastructure that gets AI models into production.</p>
+          <p>I’m a co-founder and hands-on engineer based in Israel. I work across Python, Rust, and distributed systems.</p>
           <p>Before this, I worked on security platforms at Sygnia, document intelligence at DOKKA, and led an engineering team in the IDF Intelligence Corps.</p>
           <div className="build-social"><a href="https://github.com/yanivakiva" target="_blank" rel="noreferrer" tabIndex={focus}><Github size={18} aria-hidden="true" focusable="false" /> GitHub<span className="sr-only"> (opens in new tab)</span></a><a href="https://www.linkedin.com/in/yanivakiva" target="_blank" rel="noreferrer" tabIndex={focus}><Linkedin size={18} aria-hidden="true" focusable="false" /> LinkedIn<span className="sr-only"> (opens in new tab)</span></a></div>
         </div><figure><img src={profile.portrait} width="1023" height="1091" loading="lazy" decoding="async" alt="Yaniv Akiva smiling, wearing a black shirt against a blue background." /><figcaption>YANIV AKIVA / Israel</figcaption></figure></div>

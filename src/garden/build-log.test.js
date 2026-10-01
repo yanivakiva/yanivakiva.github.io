@@ -20,23 +20,46 @@ test("approved build log opens the stealth company and offers all four real role
   assert.ok(html.includes('i build stuff sometimes'));
   assert.equal((html.match(/class="build-index-row"/g)||[]).length,4);
   assert.equal((html.match(/aria-pressed="true"/g)||[]).length,1);
-  assert.match(html,/<article class="build-role" id="stealth" aria-labelledby="stealth-title" tabindex="-1">/);
+  assert.match(html,/<article class="build-role build-role-redacted" id="stealth" aria-labelledby="stealth-title" tabindex="-1">/);
   assert.doesNotMatch(html,/Selected <em>experience|3 petabytes|approximately 30%/);
   assert.ok(html.includes("more than 5 PB"));
 });
-test("the stealth name is genuinely removed, not visually hidden over identifying text",()=>{
-  assert.equal(career[0].company,"Stealth Labs");
-  assert.equal(career[0].redacted,true);
-  assert.equal(Object.hasOwn(career[0],"url"),false);
+test("the public stealth record contains only the approved identity and empty detail fields",()=>{
+  assert.deepEqual(career[0], {
+    company:"Stealth Labs", redacted:true, role:"Co-Founder & CTO", dates:"2026 — now", years:"2026 — now", slug:"stealth", number:"01",
+    title:"Redacted experience", description:"", points:[], more:[], proof:"", stack:[], skills:[],
+  });
   const metadata=readFileSync(new URL("../../index.html",import.meta.url),"utf8");
   const terminal=readFileSync(new URL("../../public/garden/terminal-screen.svg",import.meta.url),"utf8");
   assert.match(terminal,/aria-label="Stealth Labs"/);
+  assert.match(metadata,/Software engineer and co-founder based in Israel\. Previously Sygnia, DOKKA, and IDF Intelligence\./);
+  assert.match(terminal,/Python · Rust · Systems/);
   for(const preview of [false,true]) {
     const html=render({preview});
     assert.match(html,/<span class="build-redaction" aria-hidden="true"><\/span><span class="sr-only">Stealth<\/span> Labs/);
-    assert.doesNotMatch(html+compiled+metadata+terminal+JSON.stringify({profile,career}),/fidesa/i);
-    assert.match(html,/stealth\.log/);
+    assert.match(html,/current\.log/);
   }
+});
+test("the approved redactions are empty geometry, not blurred or hidden company copy",()=>{
+  const html=render();
+  const chapter=html.match(/<article[^>]+id="stealth"[\s\S]*?<\/article>/)[0];
+  const bars=chapter.match(/<span class="build-mask(?: [^"]+)?" style="--redaction-width:\d+%"><\/span>/g)||[];
+  assert.equal(bars.length,18);
+  assert.equal((chapter.match(/class="build-mask-plus"/g)||[]).length,3);
+  assert.equal((chapter.match(/class="build-mask-field"/g)||[]).length,4);
+  assert.match(chapter,/Description, achievements, and technical details are redacted\./);
+  assert.match(chapter,/class="build-redacted-layout" aria-hidden="true"/);
+  assert.doesNotMatch(chapter,/<details|<summary|<a |title=|data-tooltip=|building something new|under wraps|More when/);
+  const css=readFileSync(new URL("./build-log.css",import.meta.url),"utf8");
+  const print=css.slice(css.indexOf("@media print"));
+  assert.match(print,/\.build-log \.build-mask \{[^}]*border:6px solid #111/);
+});
+test("redacted rendering ignores private fields even if a future caller supplies them",()=>{
+  const saved={...career[0]}, marker="PRIVATE_RENDER_GUARD";
+  try {
+    Object.assign(career[0], { description:marker, points:[marker], more:[marker], proof:marker, stack:[[marker,marker]], skills:[marker] });
+    for(const preview of [false,true]) for(const selected of career.map(role=>role.slug)) assert.ok(!render({preview,selected}).includes(marker));
+  } finally { Object.assign(career[0],saved); }
 });
 test("each selection exposes only its panel, with matching controls and accessible headings",()=>{
   for(const selected of career.map(role=>role.slug)) {
@@ -46,16 +69,14 @@ test("each selection exposes only its panel, with matching controls and accessib
       assert.ok(tag);
       assert.equal(tag.includes('hidden=""'),role.slug!==selected);
       assert.ok(html.includes('aria-controls="'+role.slug+'"'));
-      assert.ok(html.includes('<h3 id="'+role.slug+'-title">'));
+      assert.match(html,new RegExp('<h3 id="'+role.slug+'-title"(?: class="sr-only")?>'));
     }
   }
 });
-test("the new CV keeps every updated description, point, date and outcome qualifier",()=>{
+test("previous roles keep every description, point, date and outcome qualifier",()=>{
   const html=render();
   for(const role of career) for(const fact of [role.company,role.role,role.dates,role.title,role.description,role.proof,...role.points,...role.more,...role.stack.flat()]) assert.ok(html.includes(escape(fact)),fact);
   for(const row of expertise) for(const fact of row) assert.ok(html.includes(escape(fact)));
-  assert.match(html,/approximately 30× lower compute requirements and comparable or better task quality/);
-  assert.match(html,/Our platform autonomously turns customer requirements into purpose-built AI models/);
 });
 test("the supplied portrait is a real local asset",()=>{
   const html=render();
@@ -78,10 +99,10 @@ test("DOKKA and IDF reflect the latest source wording, not superseded claims",()
   assert.match(idf.points.join(" "),/architecture and engineering of two mission-critical intelligence systems/);
   assert.doesNotMatch(JSON.stringify(idf),/principal architect|remained in service/);
 });
-test("customer delivery remains anonymous and the requested toolbox row is omitted",()=>{
+test("company delivery details stay absent and the requested toolbox row stays omitted",()=>{
   const html=render();
-  assert.ok(html.includes("Led customer discovery and pilot delivery, turning requirements into model specifications and evaluation plans."));
-  assert.doesNotMatch(html,/Reco AI|ML infrastructure|ONNX|inference benchmarking|model monitoring/);
+  assert.deepEqual(career[0].points,[]);
+  assert.doesNotMatch(html,/ML infrastructure|ONNX|inference benchmarking|model monitoring/);
   assert.equal(expertise.length,4);
 });
 test("the portal preview is inert, unlabelled by duplicate IDs, and outside the tab order",()=>{
