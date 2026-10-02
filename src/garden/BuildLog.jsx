@@ -18,7 +18,7 @@ function RedactedExperience({ role, preview }) {
     <h3 id={preview ? undefined : `${role.slug}-title`} className="sr-only">{role.title}</h3>
     <p className="build-print-role">{role.company} · {role.role} · {role.dates}</p>
     <p className="sr-only">Description, achievements, and technical details are redacted.</p>
-    <div className="build-redacted-file" aria-hidden="true"><span>current.log</span><span className="build-redaction" /></div>
+    <div className="build-redacted-file" aria-hidden="true"><span>stealth.log</span><span className="build-redaction" /></div>
     <div className="build-redacted-layout" aria-hidden="true">
       <div>
         <RedactionBar width={64} className="build-mask-title" />

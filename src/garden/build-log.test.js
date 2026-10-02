@@ -37,7 +37,7 @@ test("the public stealth record contains only the approved identity and empty de
   for(const preview of [false,true]) {
     const html=render({preview});
     assert.match(html,/<span class="build-redaction" aria-hidden="true"><\/span><span class="sr-only">Stealth<\/span> Labs/);
-    assert.match(html,/current\.log/);
+    assert.match(html,/stealth\.log/);
   }
 });
 test("the approved redactions are empty geometry, not blurred or hidden company copy",()=>{
