@@ -1,56 +1,50 @@
 export const OPENING_WAIT_MS = 3000;
-export const OPENING_BUFFER_SECONDS = 3;
+export const OPENING_STALL_MS = 45000;
 
-// Only contiguous media starting at zero can prepare the opening. A buffered
-// island near the end must not make a cold journey look ready.
-export function openingBufferFraction(ranges, seconds = OPENING_BUFFER_SECONDS) {
-  let end = 0;
-  for (let i = 0; i < ranges.length; i++) {
-    if (ranges.start(i) > end + .05) break;
-    end = Math.max(end, ranges.end(i));
+// Slow transfers keep loading. Failed/stalled transfers offer Retry, never CV.
+export function createOpeningReadiness({ onChange, setTimer = setTimeout, clearTimer = clearTimeout }) {
+  let state = { status: "loading", progress: 0, reason: null }, closed = false, slowTimer, stallTimer;
+  const assets = { poster: false, companion: false, arrival: false, screen: false, decoded: false, downloaded: 0 };
+  const pending = () => !closed && ["loading", "slow"].includes(state.status);
+  const clear = () => { clearTimer(slowTimer); clearTimer(stallTimer); };
+  function fail(reason = "unavailable") {
+    if (closed || state.status === "error") return;
+    clear(); state = { ...state, status: "error", reason }; onChange(state);
   }
-  return Math.max(0, Math.min(1, end / seconds));
-}
-
-export function canPrepareOpening({ scrollY, hash }) {
-  return scrollY <= 2 && (!hash || hash === "#home");
-}
-
-// This gate owns only the cinematic enhancement, never browser scrolling.
-// The soft deadline changes the message, not the media lifecycle. Only leaving
-// the opening (or an actual error) settles the static route, so a late download
-// can recover at the top without lengthening the document beneath a reader.
-export function createOpeningReadiness({ onChange, canStart = () => true,
-  setTimer = setTimeout, clearTimer = clearTimeout }) {
-  let state = { status: "loading", progress: 0, reason: null }, closed = false, timer;
-  const assets = { poster: false, companion: false, decoded: false, buffered: 0 };
-  const pending = () => !closed && (state.status === "loading" || state.status === "slow");
-  function finish(status, reason = null) {
-    if (!pending()) return;
-    clearTimer(timer);
-    state = { status, progress: status === "ready" ? 100 : state.progress, reason };
-    onChange(state);
+  function touch() {
+    clearTimer(stallTimer);
+    stallTimer = setTimer(() => fail("stalled"), OPENING_STALL_MS);
   }
-  timer = setTimer(() => {
-    if (!pending()) return;
-    if (!canStart()) { finish("static", "navigation"); return; }
-    state = { ...state, status: "slow" };
-    onChange(state);
+  slowTimer = setTimer(() => {
+    if (pending()) { state = { ...state, status: "slow" }; onChange(state); }
   }, OPENING_WAIT_MS);
-  onChange(state);
-  if (!canStart()) finish("static", "navigation");
+  touch(); onChange(state);
   return {
     get state() { return state; },
     update(patch) {
       if (!pending()) return;
+      if (Object.entries(patch).some(([key, value]) => assets[key] !== value)) touch();
       Object.assign(assets, patch);
-      if (!canStart()) { finish("static", "navigation"); return; }
-      const media = assets.decoded ? Math.max(0, Math.min(1, assets.buffered)) : 0;
-      const progress = Math.floor((Number(assets.poster) + Number(assets.companion) + media) / 3 * 100);
-      if (assets.poster && assets.companion && assets.decoded && media === 1) finish("ready");
-      else if (progress !== state.progress) { state = { ...state, progress }; onChange(state); }
+      const artwork = ["poster", "companion", "arrival", "screen"].filter(key => assets[key]).length;
+      const downloaded = Math.max(0, Math.min(1, assets.downloaded));
+      const complete = artwork === 4 && assets.decoded && downloaded === 1;
+      const progress = Math.min(complete ? 100 : 99, Math.floor(artwork * 5 + downloaded * 75 + Number(assets.decoded) * 5));
+      if (complete) {
+        clear(); state = { status: "ready", progress: 100, reason: null }; onChange(state);
+      } else if (state.progress !== progress) {
+        state = { ...state, progress }; onChange(state);
+      }
     },
-    skip(reason = "navigation") { finish("static", reason); },
-    destroy() { closed = true; clearTimer(timer); },
+    fail,
+    prepareMedia() {
+      if (closed || state.status === "error") return;
+      clear(); assets.decoded = false; assets.downloaded = 0;
+      state = { status: "loading", progress: ["poster", "companion", "arrival", "screen"].filter(key => assets[key]).length * 5, reason: null };
+      slowTimer = setTimer(() => {
+        if (pending()) { state = { ...state, status: "slow" }; onChange(state); }
+      }, OPENING_WAIT_MS);
+      touch(); onChange(state);
+    },
+    destroy() { closed = true; clear(); },
   };
 }

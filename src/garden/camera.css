@@ -9,6 +9,7 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 .camera-header nav { background:#f7f3e9f5; color:#1e3028; border:1px solid #d5cdbd80; border-radius:999px; padding:0 20px; backdrop-filter:blur(12px); box-shadow:0 4px 16px #00000012; }
 .camera-header nav > a, .camera-header button { min-height:44px; display:flex; align-items:center; gap:7px; }
 .camera-header button { background:none; border:0; padding:0; }
+.camera-header :is(button:disabled, a[aria-disabled="true"]) { opacity:.45; cursor:default; }
 .camera-header .camera-motion { border-left:1px solid #afb4a1; padding-left:22px; font-size:11px; }
 .camera-header[data-dark="true"] { color:#1e3028; background:transparent; }
 .camera-skip { position:fixed; left:16px; top:-100px; z-index:100; background:#f7f3e9; padding:14px; }
@@ -31,6 +32,7 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 .camera-introduction h1 em { font-weight:300; }
 .camera-description { font:16px/1.65 var(--sans); color:#465444; letter-spacing:-.2px; }
 .camera-cta { border-bottom:1px solid #65725c; display:inline-flex; gap:30px; align-items:center; padding:15px 0 11px; margin-top:5px; font-size:12px; }
+button.camera-cta { background:none; border:0; border-bottom:1px solid #65725c; border-radius:0; color:inherit; font-family:inherit; cursor:pointer; }
 .garden-opening { min-height:64px; }
 .garden-opening-loading { width:255px; max-width:78vw; margin-top:23px; }
 .garden-opening-label { display:flex; justify-content:space-between; gap:16px; color:#21342c; font:400 13px/1.5 var(--mono); }
@@ -38,7 +40,9 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 .garden-opening-track { height:3px; background:#21342c24; border-radius:9px; overflow:hidden; margin-top:11px; }
 .garden-opening-track > span { display:block; height:100%; background:#ae613d; border-radius:9px; transition:width .25s ease; }
 .garden-opening-loading p { font:12px/1.6 var(--sans); color:#465444; margin:10px 0 0; }
-.garden-opening .garden-opening-skip { margin-top:12px; min-height:44px; font-size:13px; }
+.garden-opening-error { margin-top:20px; font:13px/1.6 var(--sans); color:#465444; }
+.garden-opening-error p { margin:0; }
+.garden-opening-error .camera-cta { min-height:44px; }
 .camera-journey:is([data-opening="loading"], [data-opening="slow"]) .camera-companion img { animation:garden-opening-float 3.2s ease-in-out infinite; }
 @keyframes garden-opening-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
 @media (prefers-reduced-motion:reduce) {
@@ -48,7 +52,6 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 @media (max-height:700px) {
   .garden-opening-loading { margin-top:12px; }
   .garden-opening-loading p { display:none; }
-  .garden-opening .garden-opening-skip { margin-top:5px; }
 }
 .camera-footer { position:absolute; bottom:29px; left:4.5vw; right:4.5vw; display:flex; justify-content:space-between; align-items:center; font:9px var(--mono); letter-spacing:1.4px; }
 .camera-scroll-label { display:flex; align-items:center; gap:12px; }
@@ -65,10 +68,10 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 .mini-command { position:absolute; bottom:0; left:0; right:0; padding:13px 30px; background:#344438; color:#d1d5b6; }
 .mini-command b { color:#d3b887; }
 .camera-editor-preview { opacity:0; position:absolute; inset:0; overflow:hidden; background:var(--editor); pointer-events:none; color:var(--editor-text); }
-.camera-journey[data-animated="false"] { height:100svh; min-height:700px; }
-.camera-journey[data-animated="false"] .camera-stage { position:relative; height:100%; }
 .camera-journey[data-animated="false"] .camera-screen-code, .camera-journey[data-animated="false"] .camera-editor-preview { display:none; }
-.camera-journey[data-animated="false"] + .editor-resume { margin-top:0; }
+.camera-cv-pending { padding-top:0 !important; height:100svh; }
+.camera-portfolio[data-journey-complete="false"] .camera-portal-preview { visibility:visible; }
+.camera-portfolio[data-loading="true"] .camera-stage { touch-action:pinch-zoom; }
 
 .editor-resume { position:relative; margin-top:-100svh; padding-top:86px; color:var(--editor-text); background:var(--editor); min-height:100svh; }
 .camera-portal-preview > .editor-resume-preview { margin-top:0; padding-top:0; }
@@ -143,7 +146,6 @@ html:has(.camera-portfolio) { scroll-behavior: auto; scroll-padding-top: 0; }
 @media(max-width:759px) {
   .camera-header { height:74px; padding:0 6vw; }.camera-wordmark { font-size:29px; }.camera-header nav { gap:17px; font-size:10px; }.header-contact { display:none !important; }.camera-header .camera-motion { padding-left:12px; }.camera-motion span { display:none; }
   .camera-journey { height:420svh; }.camera-introduction { left:8vw; top:17%; }.camera-introduction h1 { font-size:clamp(72px,20vw,120px); }.camera-eyebrow { font-size:8px; letter-spacing:1px; margin-bottom:24px; }.camera-description { font-size:13px; }.camera-cta { font-size:11px; gap:25px; }.camera-footer { left:6vw; right:6vw; font-size:7px; letter-spacing:.7px; }.camera-scroll-label { gap:5px; }
-  .camera-journey[data-animated="false"] { min-height:650px; }
   .editor-tabbar { height:54px; padding-left:6vw; }.editor-tab { padding:0 15px; font-size:10px; }.secondary-tab { display:none; }
   .editor-opening { padding:58px 8vw 43px; }.editor-comment { font-size:8px; letter-spacing:1px; }.editor-opening h2 { font-size:52px; margin-top:22px; }.editor-lead { font-size:12px; }.editor-file-meta { font-size:8px; gap:12px; }.editor-file-meta span + span { padding-left:12px; }
   .editor-workspace { display:block; margin:0 7vw; }.editor-sidebar { position:relative; padding:15px 0; border-bottom:1px solid var(--editor-line); }.editor-sidebar p,.editor-sidebar .file-group,.editor-sidebar .sidebar-note { display:none; }.editor-sidebar nav { flex-direction:row; flex-wrap:wrap; margin:0; gap:3px; }.editor-sidebar nav a { padding:8px; font-size:9px; min-height:44px; }.editor-sidebar .file-link { margin:0; }.editor-sidebar nav a > span { display:none; }

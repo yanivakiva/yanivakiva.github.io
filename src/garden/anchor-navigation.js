@@ -25,7 +25,7 @@ export function anchorScrollTop(rectTop, scrollY, scrollMarginTop = 0) {
 }
 
 /** Keep real hrefs/history, but do not rely on native scrolling to hidden React targets. */
-export function installAnchorNavigation({ browser, document, root, onNavigate = () => {}, onResolveTarget = () => {}, scrollTo }) {
+export function installAnchorNavigation({ browser, document, root, onNavigate = () => {}, onResolveTarget = () => {}, canNavigate = () => true, onBlockedNavigation = () => {}, scrollTo }) {
   let pending = 0, focusing = 0, restoreFocus = null, disposed = false, cancelScroll = null, generation = 0;
   const cancel = () => {
     generation++; cancelScroll?.(); cancelScroll = null;
@@ -74,7 +74,9 @@ export function installAnchorNavigation({ browser, document, root, onNavigate = 
     pending = browser.requestAnimationFrame(() => {
       pending = 0;
       if (disposed) return;
-      const target = targetFor(hashTargetId(browser.location.hash));
+      const id = hashTargetId(browser.location.hash);
+      if (id && !canNavigate(id)) { onBlockedNavigation(id); return; }
+      const target = targetFor(id);
       if (target) navigate(target);
       // Empty/invalid hashes leave native saved-scroll restoration untouched.
     });
@@ -88,6 +90,7 @@ export function installAnchorNavigation({ browser, document, root, onNavigate = 
       inert: Boolean(link.closest("[inert]")),
     })) return;
     const destination = localAnchor(link.getAttribute("href"), browser.location.href);
+    if (destination && !canNavigate(destination.id)) { event.preventDefault(); return; }
     const target = destination && targetFor(destination.id);
     if (!target) return;
     if (browser.location.hash !== destination.hash) {

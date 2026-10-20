@@ -196,3 +196,18 @@ test("home gets a temporary focus target, and cleanup cancels listeners and pend
   assert.equal(f.focused.at(-1).id, "home");
   assert.equal(f.callbacks.size, 0); assert.equal(f.rootCallbacks.size, 0);
 });
+
+test("the journey gate blocks clicks, deep links and history before resolving or focusing CV targets", () => {
+  let allowed = false, resolutions = 0;
+  const f = fixture("#about", { canNavigate: () => allowed, onResolveTarget: () => resolutions++ });
+  f.flushFrame(); f.flushFrame();
+  assert.equal(f.scrolls.length, 0); assert.equal(resolutions, 0);
+  for (const hash of ["#experience", "#about"]) {
+    assert.equal(f.click(hash), true);
+    f.setLocation(hash); f.emit("hashchange"); f.emit("popstate"); f.flushFrame(); f.flushFrame();
+  }
+  assert.equal(f.scrolls.length, 0); assert.equal(f.pushes.length, 0); assert.equal(f.focused.length, 0); assert.equal(resolutions, 0);
+  allowed = true;
+  f.emit("hashchange"); f.flushFrame(); f.flushFrame();
+  assert.equal(f.focused.at(-1).id, "about"); f.stop();
+});
