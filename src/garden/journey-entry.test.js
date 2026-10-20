@@ -173,17 +173,19 @@ test("ready UI starts a journey, and failure UI offers only Retry", () => {
 
 const portfolioCode = buildSync({ entryPoints: [fileURLToPath(new URL("./CameraPortfolio.jsx", import.meta.url))], bundle: true, write: false,
   platform: "node", format: "cjs", jsx: "automatic", external: ["react", "react-dom"], loader: { ".css": "empty" }, logLevel: "silent" }).outputFiles[0].text;
-test("initial normal and reduced-motion renders contain no accessible CV, skip link or Motion shortcut", t => {
+test("system and legacy motion settings cannot select a static path or bypass the garden", t => {
   // This test inspects initial HTML only; neither effect runs in SSR.
   t.mock.method(React, "useLayoutEffect", React.useEffect);
-  for (const reduced of [false, true]) {
+  for (const reduced of [false, true]) for (const saved of [null, "off", "on"]) {
     const module = { exports: {} };
     runInNewContext(portfolioCode, { module, exports: module.exports, require: createRequire(import.meta.url),
-      matchMedia: () => ({ matches: reduced }), localStorage: { getItem: () => null } });
+      matchMedia: () => ({ matches: reduced }), localStorage: { getItem: key => key === "garden.motion" ? saved : null } });
     const html = renderToStaticMarkup(React.createElement(module.exports.default));
     assert.match(html, /data-journey-complete="false" data-loading="true"/);
     assert.match(html, /<section id="experience" class="editor-resume camera-cv-pending" inert="" aria-hidden="true"><\/section>/);
-    assert.doesNotMatch(html, /id="about"|id="contact"|id="stealth"|Skip to|Toggle camera motion/);
+    assert.doesNotMatch(html, /id="about"|id="contact"|id="stealth"|Skip to|Continue|camera-motion|Motion off/);
     assert.match(html, /class="camera-skip" disabled=""/);
+    assert.match(html, /data-motion="on"/);
+    assert.match(html, /Start garden tour/);
   }
 });

@@ -11,18 +11,18 @@ import { downloadJourney, preloadJourneyFrames } from "./journey-preload";
 
 const ASSETS = "/garden/cinematic";
 const PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)";
-export default function CameraJourney({ enabled, onProgress, onOpening, onExplore, playback, selectedRole }) {
+export default function CameraJourney({ onProgress, onOpening, onExplore, playback, selectedRole }) {
   const root = useRef(null), canvas = useRef(null), copy = useRef(null), indicator = useRef(null), arrival = useRef(null);
   const scene = useRef(null), portal = useRef(null), terminal = useRef(null), progress = useRef(0);
   const companion = useRef(null), movie = useRef(null);
   const [variant, setVariant] = useState(() => matchMedia(PORTRAIT_QUERY).matches ? "portrait" : "wide");
   const [posterFailed, setPosterFailed] = useState(false), [attempt, setAttempt] = useState(0);
   const [opening, setOpening] = useState({ status: "loading", progress: 0, reason: null });
-  const animated = enabled && opening.status === "ready";
+  const animated = opening.status === "ready";
   useLayoutEffect(() => { onOpening(opening); onProgress(); }, [opening, onOpening, onProgress]);
   useLayoutEffect(() => {
     setOpening({ status: "loading", progress: 0, reason: null });
-  }, [enabled, variant, attempt]);
+  }, [variant, attempt]);
   useEffect(() => {
     const query = matchMedia(PORTRAIT_QUERY);
     const change = () => { setVariant(query.matches ? "portrait" : "wide"); setPosterFailed(false); };
@@ -74,7 +74,6 @@ export default function CameraJourney({ enabled, onProgress, onOpening, onExplor
     playback.current = {
       get travel() { return node.offsetHeight - stage.offsetHeight; },
       ensurePosition(y) {
-        if (!enabled) return gate.state.status === "ready";
         if (node.dataset.animated !== "true") return false;
         if (!metadata || (!cache && !media)) return false;
         const p = clamp((y - (node.getBoundingClientRect().top + window.scrollY)) / Math.max(1, this.travel));
@@ -98,23 +97,6 @@ export default function CameraJourney({ enabled, onProgress, onOpening, onExplor
         return;
       }
       const p = progress.current;
-      if (!enabled) {
-        // Reduced motion traverses the SAME scroll distance, using discrete
-        // still scenes instead of camera movement. It is not a CV shortcut.
-        scene.current.style.transform = "none";
-        video.style.opacity = "0"; canvas.current.style.opacity = "0";
-        arrival.current.style.opacity = p >= .75 ? "1" : "0";
-        copy.current.style.opacity = p < .25 ? "1" : "0";
-        copy.current.style.visibility = p < .25 ? "visible" : "hidden";
-        copy.current.style.transform = "none";
-        companion.current.style.opacity = p < .25 ? "1" : "0"; companion.current.style.transform = "none";
-        terminal.current.style.opacity = "0"; portal.current.style.opacity = p >= .9999 ? "1" : "0";
-        indicator.current.style.opacity = p >= .9999 ? "0" : "1";
-        indicator.current.style.setProperty("--camera-progress", `${p * 100}%`);
-        indicator.current.querySelector(".camera-chapter").textContent = p < .25 ? "01 / THE GARDEN" : p < .5 ? "02 / ACROSS THE BRIDGE" : p < .75 ? "03 / THE WORKSHOP" : "04 / INSIDE THE WORK";
-        node.dataset.arrived = String(p >= .9999);
-        return;
-      }
       const atStart = p < .001;
       const visualProgress = atStart ? 0 : metadata && p < metadata.filmEnd ? lastFrame / (metadata.count - 1) * metadata.filmEnd : p;
       // Returning to the top must immediately restore the sharp opening plate,
@@ -183,8 +165,7 @@ export default function CameraJourney({ enabled, onProgress, onOpening, onExplor
     observer.observe(stage);
     window.addEventListener("scroll", schedule, { passive: true }); window.addEventListener("resize", schedule);
     update();
-    if (!enabled) gate.update({ decoded: true, downloaded: 1 });
-    else if (!context || !surface) gate.fail();
+    if (!context || !surface) gate.fail();
     else fetch(`${ASSETS}/${variant}/manifest.json`, { signal: controller.signal }).then(response => {
       if (!response.ok) throw new Error("Sequence unavailable"); return response.json();
     }).then(data => {
@@ -250,7 +231,7 @@ export default function CameraJourney({ enabled, onProgress, onOpening, onExplor
       if (movieUrl) URL.revokeObjectURL(movieUrl);
       observer.disconnect(); cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); };
-  }, [enabled, variant, attempt, onProgress, playback]);
+  }, [variant, attempt, onProgress, playback]);
   return <section className="camera-journey" id="home" ref={root} data-animated={animated} data-opening={opening.status} aria-label="A workshop above the clouds">
     <div className="camera-stage">
       <div className="camera-scene-layer" ref={scene} aria-hidden="true">
