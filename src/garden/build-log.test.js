@@ -105,6 +105,17 @@ test("company delivery details stay absent and the requested toolbox row stays o
   assert.doesNotMatch(html,/ML infrastructure|ONNX|inference benchmarking|model monitoring/);
   assert.equal(expertise.length,4);
 });
+test("IDF leadership copy omits team size in both the CV and decorative preview",()=>{
+  const idf=career.find(role=>role.slug==="idf");
+  assert.equal(idf.description,"I led a team of military personnel and civilian engineers, while staying hands-on with software, system design, and architecture.");
+  assert.equal(idf.proof,"A multidisciplinary team. Two mission-critical intelligence systems.");
+  for(const preview of [false,true]) {
+    const html=render({preview,selected:"idf"});
+    assert.ok(html.includes(escape(idf.description)));
+    assert.ok(html.includes(escape(idf.proof)));
+    assert.doesNotMatch(html,/four[ -]person|4[ -]person|team of (?:four|4)\b/i);
+  }
+});
 test("the portal preview is inert, unlabelled by duplicate IDs, and outside the tab order",()=>{
   const html=render({preview:true});
   assert.match(html,/inert="" aria-hidden="true"/);

@@ -21,10 +21,10 @@ export const career = [
     stack: [["platform", "Azure / AKS"], ["delivery", "Azure DevOps / ACR"], ["matching", "Redis"], ["documents", "OCR / ML"]],
     skills: ["Azure", "Kubernetes", "Azure DevOps", "Redis", "OCR"] },
   { company: "IDF Intelligence", role: "Engineering Team Lead", fullRole: "Software Engineering Team Lead and Commander", dates: "Feb 2018 — Nov 2020", years: "2018 — 2020", slug: "idf", number: "04",
-    title: "Leading a team. Still writing the code.", description: "I led a four-person team of military personnel and civilian engineers, while staying hands-on with software, system design, and architecture.",
+    title: "Leading a team. Still writing the code.", description: "I led a team of military personnel and civilian engineers, while staying hands-on with software, system design, and architecture.",
     points: ["Led the architecture and engineering of two mission-critical intelligence systems supporting cross-agency national-security operations.", "Owned the delivery lifecycle: requirements, roadmaps, architecture, implementation, and milestones.", "Built distributed data-processing services for security-critical intelligence workloads."],
     more: ["Owned technical mandates, Gantt planning, reporting, and delivery dates.", "Worked with Python, FastAPI, SQLAlchemy, relational and non-relational databases, Kubernetes, and automated CI/CD."],
-    proof: "A four-person multidisciplinary team. Two mission-critical intelligence systems.",
+    proof: "A multidisciplinary team. Two mission-critical intelligence systems.",
     stack: [["code", "Python"], ["backend", "FastAPI / SQLAlchemy"], ["platform", "Kubernetes"], ["delivery", "Automated CI/CD"]],
     skills: ["Python", "FastAPI", "SQLAlchemy", "SQL", "Kubernetes"] },
 ];
